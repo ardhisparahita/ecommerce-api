@@ -80,7 +80,7 @@ func (s *ProductServiceImpl) FindByID(ctx context.Context, id uint64) (*response
 func (s *ProductServiceImpl) Update(ctx context.Context, id uint64, req request.UpdateProductRequest) error {
 	product, err := s.Repo.FindByID(ctx, id)
 	if err != nil {
-		return nil
+		return err
 	}
 
 	product.CategoryId = req.CategoryID

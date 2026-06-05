@@ -28,7 +28,11 @@ func main() {
 	userService := service.NewAuthService(userRepo)
 	userHandler := handler.NewAuthHandler(userService)
 
-	routes.SetupRoutes(app, userHandler)
+	categoryRepo := repository.NewCategoryRepository(db)
+	categoryService := service.NewCategoryService(categoryRepo)
+	categoryHandler := handler.NewCategoryHandler(categoryService)
+
+	routes.SetupRoutes(app, userHandler, categoryHandler)
 
 	log.Fatal(
 		app.Listen(":" + config.Get("APP_PORT")),

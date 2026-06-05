@@ -3,6 +3,10 @@ package main
 import (
 	"log"
 
+	"github.com/ardhisparahita/ecommerce-api/internal/handler"
+	"github.com/ardhisparahita/ecommerce-api/internal/repository"
+	"github.com/ardhisparahita/ecommerce-api/internal/routes"
+	"github.com/ardhisparahita/ecommerce-api/internal/service"
 	"github.com/ardhisparahita/ecommerce-api/pkg/config"
 	"github.com/ardhisparahita/ecommerce-api/pkg/database"
 	"github.com/gofiber/fiber/v2"
@@ -20,11 +24,11 @@ func main() {
 
 	app := fiber.New()
 
-	app.Get("/", func(c *fiber.Ctx) error {
-		return c.JSON(fiber.Map{
-			"message": "e-commerce api running",
-		})
-	})
+	userRepo := repository.NewUserRepository(db)
+	userService := service.NewAuthService(userRepo)
+	userHandler := handler.NewAuthHandler(userService)
+
+	routes.SetupRoutes(app, userHandler)
 
 	log.Fatal(
 		app.Listen(":" + config.Get("APP_PORT")),

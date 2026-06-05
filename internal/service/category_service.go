@@ -8,6 +8,6 @@ import (
 )
 
 type CategoryService interface {
-	Create(ctx context.Context, req request.CreateCategoryRequest) error
+	Create(ctx context.Context, req request.CreateCategoryRequest) (*response.CategoryResponse, error)
 	FindAll(ctx context.Context) ([]response.CategoryResponse, error)
 }

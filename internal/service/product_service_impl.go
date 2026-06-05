@@ -19,9 +19,9 @@ func NewProductService(repo repository.ProductRepository) ProductService {
 	}
 }
 
-func (s *ProductServiceImpl) Create(ctx context.Context, req request.CreateProductRequest) error {
+func (s *ProductServiceImpl) Create(ctx context.Context, req request.CreateProductRequest) (*response.ProductResponse, error) {
 	product := domain.Product{
-		CategoryId:  req.CategoryID,
+		CategoryID:  req.CategoryID,
 		Name:        req.Name,
 		Description: req.Description,
 		Price:       req.Price,
@@ -29,7 +29,22 @@ func (s *ProductServiceImpl) Create(ctx context.Context, req request.CreateProdu
 		ImageURL:    req.ImageURL,
 	}
 
-	return s.Repo.Create(ctx, &product)
+	err := s.Repo.Create(ctx, &product)
+	if err != nil {
+		return nil, err
+	}
+
+	res := &response.ProductResponse{
+		ID:          product.ID,
+		CategoryID:  product.CategoryID,
+		Name:        req.Name,
+		Description: req.Description,
+		Price:       req.Price,
+		Stock:       req.Stock,
+		ImageURL:    req.ImageURL,
+	}
+
+	return res, nil
 }
 
 func (s *ProductServiceImpl) FindAll(ctx context.Context) ([]response.ProductResponse, error) {
@@ -43,7 +58,7 @@ func (s *ProductServiceImpl) FindAll(ctx context.Context) ([]response.ProductRes
 	for _, p := range products {
 		result = append(result, response.ProductResponse{
 			ID:          p.ID,
-			CategoryID:  p.CategoryId,
+			CategoryID:  p.CategoryID,
 			Category:    p.Category.Name,
 			Name:        p.Name,
 			Description: p.Description,
@@ -65,7 +80,7 @@ func (s *ProductServiceImpl) FindByID(ctx context.Context, id uint64) (*response
 
 	res := &response.ProductResponse{
 		ID:          product.ID,
-		CategoryID:  product.CategoryId,
+		CategoryID:  product.CategoryID,
 		Category:    product.Category.Name,
 		Name:        product.Name,
 		Description: product.Description,
@@ -77,20 +92,36 @@ func (s *ProductServiceImpl) FindByID(ctx context.Context, id uint64) (*response
 	return res, nil
 }
 
-func (s *ProductServiceImpl) Update(ctx context.Context, id uint64, req request.UpdateProductRequest) error {
+func (s *ProductServiceImpl) Update(ctx context.Context, id uint64, req request.UpdateProductRequest) (*response.ProductResponse, error) {
 	product, err := s.Repo.FindByID(ctx, id)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	product.CategoryId = req.CategoryID
+	product.CategoryID = req.CategoryID
 	product.Name = req.Name
 	product.Description = req.Description
 	product.Price = req.Price
 	product.Stock = req.Stock
 	product.ImageURL = req.ImageURL
 
-	return s.Repo.Update(ctx, product)
+	err = s.Repo.Update(ctx, product)
+	if err != nil {
+		return nil, err
+	}
+
+	res := &response.ProductResponse{
+		ID:          product.ID,
+		CategoryID:  product.CategoryID,
+		Category:    product.Category.Name,
+		Name:        product.Name,
+		Description: product.Description,
+		Price:       product.Price,
+		Stock:       product.Stock,
+		ImageURL:    product.ImageURL,
+	}
+
+	return res, nil
 }
 
 func (s *ProductServiceImpl) Delete(ctx context.Context, id uint64) error {

@@ -3,6 +3,7 @@ package handler
 import (
 	"github.com/ardhisparahita/ecommerce-api/internal/dto/request"
 	"github.com/ardhisparahita/ecommerce-api/internal/service"
+	"github.com/ardhisparahita/ecommerce-api/pkg/utils"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -45,5 +46,10 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 		return err
 	}
 
-	return c.JSON(res)
+	return utils.Success(
+		c,
+		fiber.StatusOK,
+		"login success",
+		res,
+	)
 }

@@ -5,6 +5,7 @@ import (
 
 	"github.com/ardhisparahita/ecommerce-api/internal/dto/request"
 	"github.com/ardhisparahita/ecommerce-api/internal/service"
+	"github.com/ardhisparahita/ecommerce-api/pkg/utils"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -22,17 +23,20 @@ func (h *ProductHandler) Create(c *fiber.Ctx) error {
 	var req request.CreateProductRequest
 
 	if err := c.BodyParser(&req); err != nil {
-		return err
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 
-	err := h.Service.Create(c.UserContext(), req)
+	data, err := h.Service.Create(c.UserContext(), req)
 	if err != nil {
 		return err
 	}
 
-	return c.JSON(fiber.Map{
-		"message": "product created",
-	})
+	return utils.Success(
+		c,
+		fiber.StatusOK,
+		"product created",
+		data,
+	)
 }
 
 func (h *ProductHandler) FindAll(c *fiber.Ctx) error {
@@ -41,7 +45,12 @@ func (h *ProductHandler) FindAll(c *fiber.Ctx) error {
 		return err
 	}
 
-	return c.JSON(res)
+	return utils.Success(
+		c,
+		fiber.StatusOK,
+		"get all products",
+		res,
+	)
 }
 
 func (h *ProductHandler) FindByID(c *fiber.Ctx) error {
@@ -58,7 +67,12 @@ func (h *ProductHandler) FindByID(c *fiber.Ctx) error {
 		return err
 	}
 
-	return c.JSON(res)
+	return utils.Success(
+		c,
+		fiber.StatusOK,
+		"get one product",
+		res,
+	)
 }
 
 func (h *ProductHandler) Update(c *fiber.Ctx) error {
@@ -76,14 +90,17 @@ func (h *ProductHandler) Update(c *fiber.Ctx) error {
 		return err
 	}
 
-	err = h.Service.Update(c.UserContext(), id, req)
+	data, err := h.Service.Update(c.UserContext(), id, req)
 	if err != nil {
 		return err
 	}
 
-	return c.JSON(fiber.Map{
-		"message": "product updated",
-	})
+	return utils.Success(
+		c,
+		fiber.StatusOK,
+		"product updated",
+		data,
+	)
 }
 
 func (h *ProductHandler) Delete(c *fiber.Ctx) error {
@@ -100,7 +117,10 @@ func (h *ProductHandler) Delete(c *fiber.Ctx) error {
 		return err
 	}
 
-	return c.JSON(fiber.Map{
-		"message": "product deleted",
-	})
+	return utils.Success(
+		c,
+		fiber.StatusOK,
+		"product deleted",
+		nil,
+	)
 }

@@ -19,7 +19,7 @@ func NewAddressService(repo repository.AddressRepository) AddressService {
 	}
 }
 
-func (s *AddressServiceImpl) Create(ctx context.Context, userID uint64, req request.CreateAddressRequest) error {
+func (s *AddressServiceImpl) Create(ctx context.Context, userID uint64, req request.CreateAddressRequest) (*response.AddressResponse, error) {
 	address := domain.Address{
 		UserID:        userID,
 		RecipientName: req.RecipientName,
@@ -29,7 +29,21 @@ func (s *AddressServiceImpl) Create(ctx context.Context, userID uint64, req requ
 		PostalCode:    req.PostalCode,
 	}
 
-	return s.Repo.Create(ctx, &address)
+	err := s.Repo.Create(ctx, &address)
+	if err != nil {
+		return nil, err
+	}
+
+	res := &response.AddressResponse{
+		ID:            address.ID,
+		RecipientName: address.RecipientName,
+		Phone:         address.Phone,
+		Address:       address.Address,
+		City:          address.City,
+		PostalCode:    address.PostalCode,
+	}
+
+	return res, nil
 }
 
 func (s *AddressServiceImpl) FindAllByUserID(ctx context.Context, userID uint64) ([]response.AddressResponse, error) {
@@ -70,10 +84,10 @@ func (s *AddressServiceImpl) FindByID(ctx context.Context, id uint64, userID uin
 	}, nil
 }
 
-func (s *AddressServiceImpl) Update(ctx context.Context, id uint64, userID uint64, req request.UpdateAddressRequest) error {
+func (s *AddressServiceImpl) Update(ctx context.Context, id uint64, userID uint64, req request.UpdateAddressRequest) (*response.AddressResponse, error) {
 	address, err := s.Repo.FindByIDAndUserID(ctx, id, userID)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	address.RecipientName = req.RecipientName
@@ -82,7 +96,21 @@ func (s *AddressServiceImpl) Update(ctx context.Context, id uint64, userID uint6
 	address.City = req.City
 	address.PostalCode = req.PostalCode
 
-	return s.Repo.Update(ctx, address)
+	err = s.Repo.Update(ctx, address)
+	if err != nil {
+		return nil, err
+	}
+
+	res := &response.AddressResponse{
+		ID:            address.ID,
+		RecipientName: address.RecipientName,
+		Phone:         address.Phone,
+		Address:       address.Address,
+		City:          address.City,
+		PostalCode:    address.PostalCode,
+	}
+
+	return res, nil
 }
 
 func (s *AddressServiceImpl) Delete(ctx context.Context, id uint64, userID uint64) error {

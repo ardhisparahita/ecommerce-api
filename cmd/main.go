@@ -9,6 +9,7 @@ import (
 	"github.com/ardhisparahita/ecommerce-api/internal/service"
 	"github.com/ardhisparahita/ecommerce-api/pkg/config"
 	"github.com/ardhisparahita/ecommerce-api/pkg/database"
+	"github.com/ardhisparahita/ecommerce-api/pkg/utils"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -22,7 +23,11 @@ func main() {
 
 	_ = db
 
-	app := fiber.New()
+	app := fiber.New(
+		fiber.Config{
+			ErrorHandler: utils.ErrorHandler,
+		},
+	)
 
 	userRepo := repository.NewUserRepository(db)
 	userService := service.NewAuthService(userRepo)

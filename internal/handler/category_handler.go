@@ -3,6 +3,7 @@ package handler
 import (
 	"github.com/ardhisparahita/ecommerce-api/internal/dto/request"
 	"github.com/ardhisparahita/ecommerce-api/internal/service"
+	"github.com/ardhisparahita/ecommerce-api/pkg/utils"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -20,17 +21,21 @@ func (h *CategoryHandler) Create(c *fiber.Ctx) error {
 	var req request.CreateCategoryRequest
 
 	if err := c.BodyParser(&req); err != nil {
-		return err
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 
-	err := h.Service.Create(c.Context(), req)
+	data, err := h.Service.Create(c.Context(), req)
 	if err != nil {
 		return err
 	}
 
-	return c.JSON(fiber.Map{
-		"message": "Category Created",
-	})
+	return utils.Success(
+		c,
+		fiber.StatusOK,
+		"category created",
+		data,
+	)
+
 }
 
 func (h *CategoryHandler) FindAll(c *fiber.Ctx) error {
@@ -40,5 +45,10 @@ func (h *CategoryHandler) FindAll(c *fiber.Ctx) error {
 		return err
 	}
 
-	return c.JSON(res)
+	return utils.Success(
+		c,
+		fiber.StatusOK,
+		"get all categories",
+		res,
+	)
 }

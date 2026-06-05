@@ -26,14 +26,17 @@ func (h *AddressHandler) Create(c *fiber.Ctx) error {
 
 	userID := utils.GetUserID(c)
 
-	err := h.Service.Create(c.UserContext(), userID, req)
+	data, err := h.Service.Create(c.UserContext(), userID, req)
 	if err != nil {
 		return err
 	}
 
-	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
-		"message": "Address created",
-	})
+	return utils.Success(
+		c,
+		fiber.StatusOK,
+		"address created",
+		data,
+	)
 }
 
 func (h *AddressHandler) FindAll(c *fiber.Ctx) error {
@@ -44,7 +47,12 @@ func (h *AddressHandler) FindAll(c *fiber.Ctx) error {
 		return err
 	}
 
-	return c.JSON(addresses)
+	return utils.Success(
+		c,
+		fiber.StatusOK,
+		"get all addresses",
+		addresses,
+	)
 }
 
 func (h *AddressHandler) FindByID(c *fiber.Ctx) error {
@@ -60,7 +68,12 @@ func (h *AddressHandler) FindByID(c *fiber.Ctx) error {
 		return err
 	}
 
-	return c.JSON(address)
+	return utils.Success(
+		c,
+		fiber.StatusOK,
+		"get one address",
+		address,
+	)
 }
 
 func (h *AddressHandler) Update(c *fiber.Ctx) error {
@@ -77,14 +90,17 @@ func (h *AddressHandler) Update(c *fiber.Ctx) error {
 
 	userID := utils.GetUserID(c)
 
-	err = h.Service.Update(c.UserContext(), id, userID, req)
+	data, err := h.Service.Update(c.UserContext(), id, userID, req)
 	if err != nil {
 		return err
 	}
 
-	return c.JSON(fiber.Map{
-		"message": "Address updated",
-	})
+	return utils.Success(
+		c,
+		fiber.StatusOK,
+		"address updated",
+		data,
+	)
 }
 
 func (h *AddressHandler) Delete(c *fiber.Ctx) error {
@@ -100,7 +116,10 @@ func (h *AddressHandler) Delete(c *fiber.Ctx) error {
 		return err
 	}
 
-	return c.JSON(fiber.Map{
-		"message": "address deleted",
-	})
+	return utils.Success(
+		c,
+		fiber.StatusOK,
+		"address deleted",
+		nil,
+	)
 }

@@ -4,7 +4,7 @@ import "time"
 
 type Product struct {
 	ID          uint64 `gorm:"primaryKey"`
-	CategoryId  uint64
+	CategoryID  uint64
 	Name        string
 	Description string
 	Price       float64

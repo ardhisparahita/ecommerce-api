@@ -19,11 +19,21 @@ func NewCategoryService(repo repository.CategoryRepository) CategoryService {
 	}
 }
 
-func (s *CategoryServiceImpl) Create(ctx context.Context, req request.CreateCategoryRequest) error {
+func (s *CategoryServiceImpl) Create(ctx context.Context, req request.CreateCategoryRequest) (*response.CategoryResponse, error) {
 	category := domain.Category{
 		Name: req.Name,
 	}
-	return s.Repo.Create(ctx, &category)
+	err := s.Repo.Create(ctx, &category)
+	if err != nil {
+		return nil, err
+	}
+
+	res := &response.CategoryResponse{
+		ID:   category.ID,
+		Name: category.Name,
+	}
+
+	return res, nil
 }
 
 func (s *CategoryServiceImpl) FindAll(ctx context.Context) ([]response.CategoryResponse, error) {

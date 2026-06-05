@@ -45,7 +45,11 @@ func main() {
 	addressService := service.NewAddressService(addressRepo)
 	addressHandler := handler.NewAddressHandler(addressService)
 
-	routes.SetupRoutes(app, userHandler, categoryHandler, productHandler, addressHandler)
+	cartRepo := repository.NewCartRepository(db)
+	cartService := service.NewCartService(cartRepo)
+	cartHandler := handler.NewCartHandler(cartService)
+
+	routes.SetupRoutes(app, userHandler, categoryHandler, productHandler, addressHandler, cartHandler)
 
 	log.Fatal(
 		app.Listen(":" + config.Get("APP_PORT")),

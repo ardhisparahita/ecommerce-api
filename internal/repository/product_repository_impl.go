@@ -37,7 +37,7 @@ func (r *ProductRepositoryImpl) FindByID(ctx context.Context, id uint64) (*domai
 }
 
 func (r *ProductRepositoryImpl) Update(ctx context.Context, product *domain.Product) error {
-	return r.DB.WithContext(ctx).Updates(product).Error
+	return r.DB.WithContext(ctx).Save(product).Error
 }
 
 func (r *ProductRepositoryImpl) Delete(ctx context.Context, id uint64) error {

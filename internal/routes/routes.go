@@ -6,7 +6,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func SetupRoutes(app *fiber.App, authHandler *handler.AuthHandler, categoryHandler *handler.CategoryHandler) {
+func SetupRoutes(app *fiber.App, authHandler *handler.AuthHandler, categoryHandler *handler.CategoryHandler, productHandler *handler.ProductHandler) {
 	api := app.Group("/api/v1")
 
 	auth := api.Group("/auth")
@@ -17,4 +17,11 @@ func SetupRoutes(app *fiber.App, authHandler *handler.AuthHandler, categoryHandl
 	category := api.Group("/categories", middleware.JWT())
 	category.Post("/", categoryHandler.Create)
 	category.Get("/", categoryHandler.FindAll)
+
+	product := api.Group("/products", middleware.JWT())
+	product.Post("/", productHandler.Create)
+	product.Get("/", productHandler.FindAll)
+	product.Get("/:id", productHandler.FindByID)
+	product.Put("/:id", productHandler.Update)
+	product.Delete("/:id", productHandler.Delete)
 }

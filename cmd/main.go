@@ -32,7 +32,11 @@ func main() {
 	categoryService := service.NewCategoryService(categoryRepo)
 	categoryHandler := handler.NewCategoryHandler(categoryService)
 
-	routes.SetupRoutes(app, userHandler, categoryHandler)
+	productRepo := repository.NewProductRepository(db)
+	productService := service.NewProductService(productRepo)
+	productHandler := handler.NewProductHandler(productService)
+
+	routes.SetupRoutes(app, userHandler, categoryHandler, productHandler)
 
 	log.Fatal(
 		app.Listen(":" + config.Get("APP_PORT")),

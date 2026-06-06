@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/ardhisparahita/ecommerce-api/internal/domain"
+	"gorm.io/gorm"
 )
 
 type CartRepository interface {
@@ -14,4 +15,5 @@ type CartRepository interface {
 	Update(ctx context.Context, cart *domain.Cart) error
 	Delete(ctx context.Context, id uint64, userID uint64) error
 	DeleteAllByUserID(ctx context.Context, userID uint64) error
+	DeleteAllByUserIDTx(ctx context.Context, tx *gorm.DB, userID uint64) error
 }

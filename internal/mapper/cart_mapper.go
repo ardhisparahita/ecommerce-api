@@ -30,6 +30,8 @@ func ToCartResponses(carts []domain.Cart) ([]response.CartResponse, float64) {
 	for _, cart := range carts {
 		subtotal := cart.Product.Price * float64(cart.Quantity)
 
+		grandTotal += subtotal
+
 		responses = append(responses, response.CartResponse{
 			ID:       cart.Product.ID,
 			Quantity: cart.Quantity,

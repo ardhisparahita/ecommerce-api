@@ -49,7 +49,17 @@ func main() {
 	cartService := service.NewCartService(cartRepo)
 	cartHandler := handler.NewCartHandler(cartService)
 
-	routes.SetupRoutes(app, userHandler, categoryHandler, productHandler, addressHandler, cartHandler)
+	orderRepo := repository.NewOrderRepository(db)
+	orderItemRepo := repository.NewOrderItemRepository(db)
+	paymentRepo := repository.NewPaymentRepository(db)
+
+	checkoutService := service.NewCheckoutService(db, cartRepo, productRepo, addressRepo, orderRepo, orderItemRepo, paymentRepo)
+	checkoutHandler := handler.NewCheckoutHandler(checkoutService)
+
+	orderService := service.NewOrderService(orderRepo)
+	orderHandler := handler.NewOrderHandler(orderService)
+
+	routes.SetupRoutes(app, userHandler, categoryHandler, productHandler, addressHandler, cartHandler, checkoutHandler, orderHandler)
 
 	log.Fatal(
 		app.Listen(":" + config.Get("APP_PORT")),

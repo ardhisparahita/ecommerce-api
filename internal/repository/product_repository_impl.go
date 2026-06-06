@@ -40,6 +40,10 @@ func (r *ProductRepositoryImpl) Update(ctx context.Context, product *domain.Prod
 	return r.DB.WithContext(ctx).Save(product).Error
 }
 
+func (r *ProductRepositoryImpl) UpdateTx(ctx context.Context, tx *gorm.DB ,product *domain.Product) error {
+	return tx.WithContext(ctx).Save(product).Error
+}
+
 func (r *ProductRepositoryImpl) Delete(ctx context.Context, id uint64) error {
 	return r.DB.WithContext(ctx).Delete(&domain.Product{}, id).Error
 }

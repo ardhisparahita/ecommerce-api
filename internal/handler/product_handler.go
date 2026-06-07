@@ -40,7 +40,13 @@ func (h *ProductHandler) Create(c *fiber.Ctx) error {
 }
 
 func (h *ProductHandler) FindAll(c *fiber.Ctx) error {
-	res, err := h.Service.FindAll(c.UserContext())
+	var req request.ProductQueryRequest
+
+	if err := c.QueryParser(&req); err != nil {
+		return err
+	}
+
+	data, err := h.Service.FindAll(c.UserContext(), req)
 	if err != nil {
 		return err
 	}
@@ -48,8 +54,8 @@ func (h *ProductHandler) FindAll(c *fiber.Ctx) error {
 	return utils.Success(
 		c,
 		fiber.StatusOK,
-		"get all products",
-		res,
+		"get products",
+		data,
 	)
 }
 

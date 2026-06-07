@@ -2,10 +2,12 @@ package service
 
 import (
 	"context"
+	"math"
 
 	"github.com/ardhisparahita/ecommerce-api/internal/domain"
 	"github.com/ardhisparahita/ecommerce-api/internal/dto/request"
 	"github.com/ardhisparahita/ecommerce-api/internal/dto/response"
+	"github.com/ardhisparahita/ecommerce-api/internal/mapper"
 	"github.com/ardhisparahita/ecommerce-api/internal/repository"
 )
 
@@ -34,41 +36,32 @@ func (s *ProductServiceImpl) Create(ctx context.Context, req request.CreateProdu
 		return nil, err
 	}
 
-	res := &response.ProductResponse{
-		ID:          product.ID,
-		CategoryID:  product.CategoryID,
-		Name:        req.Name,
-		Description: req.Description,
-		Price:       req.Price,
-		Stock:       req.Stock,
-		ImageURL:    req.ImageURL,
-	}
+	return mapper.ToProductResponse(&product), nil
 
-	return res, nil
 }
 
-func (s *ProductServiceImpl) FindAll(ctx context.Context) ([]response.ProductResponse, error) {
-	products, err := s.Repo.FindAll(ctx)
+func (s *ProductServiceImpl) FindAll(ctx context.Context, req request.ProductQueryRequest) (*response.ProductListResponse, error) {
+	if req.Page <= 0 {
+		req.Page = 1
+	}
+	if req.Limit <= 0 {
+		req.Limit = 10
+	}
+
+	products, totalRows, err := s.Repo.FindAll(ctx, req)
 	if err != nil {
 		return nil, err
 	}
 
-	var result []response.ProductResponse
+	totalPage := int(math.Ceil(float64(totalRows) / float64(req.Limit)))
 
-	for _, p := range products {
-		result = append(result, response.ProductResponse{
-			ID:          p.ID,
-			CategoryID:  p.CategoryID,
-			Category:    p.Category.Name,
-			Name:        p.Name,
-			Description: p.Description,
-			Price:       p.Price,
-			Stock:       p.Stock,
-			ImageURL:    p.ImageURL,
-		})
-	}
-
-	return result, nil
+	return &response.ProductListResponse{
+		Items:      mapper.ToProductResponses(products),
+		Page:       req.Page,
+		Limit:      req.Limit,
+		TotalRows:  totalRows,
+		TotalPages: totalPage,
+	}, nil
 
 }
 

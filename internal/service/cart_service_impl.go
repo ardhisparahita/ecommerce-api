@@ -9,30 +9,52 @@ import (
 	"github.com/ardhisparahita/ecommerce-api/internal/dto/response"
 	"github.com/ardhisparahita/ecommerce-api/internal/mapper"
 	"github.com/ardhisparahita/ecommerce-api/internal/repository"
+	"github.com/ardhisparahita/ecommerce-api/pkg/utils"
 	"gorm.io/gorm"
 )
 
 type CartServiceImpl struct {
-	Repo repository.CartRepository
+	CartRepo    repository.CartRepository
+	ProductRepo repository.ProductRepository
 }
 
-func NewCartService(repo repository.CartRepository) CartService {
+func NewCartService(cartRepo repository.CartRepository, productRepo repository.ProductRepository) CartService {
 	return &CartServiceImpl{
-		Repo: repo,
+		CartRepo:    cartRepo,
+		ProductRepo: productRepo,
 	}
 }
 
 func (s *CartServiceImpl) AddToCart(ctx context.Context, userID uint64, req request.AddToCartRequest) (*response.CartResponse, error) {
-	cart, err := s.Repo.FindByUserIDAndProductID(ctx, userID, req.ProductID)
+	product, err := s.ProductRepo.FindByID(ctx, req.ProductID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, utils.NotFound("product not found")
+		}
+
+		return nil, err
+	}
+
+	if product.Stock < req.Quantity {
+		return nil, utils.BadRequest("insufficient stock")
+	}
+
+	cart, err := s.CartRepo.FindByUserIDAndProductID(ctx, userID, req.ProductID)
 
 	if err == nil {
-		cart.Quantity += req.Quantity
+		newQuantity := cart.Quantity + req.Quantity
 
-		if err := s.Repo.Update(ctx, cart); err != nil {
+		if product.Stock < newQuantity {
+			return nil, utils.BadRequest("insufficient stock")
+		}
+
+		cart.Quantity = newQuantity
+
+		if err := s.CartRepo.Update(ctx, cart); err != nil {
 			return nil, err
 		}
 
-		cart, err := s.Repo.FindByIDAndUserID(ctx, cart.ID, userID)
+		cart, err := s.CartRepo.FindByIDAndUserID(ctx, cart.ID, userID)
 		if err != nil {
 			return nil, err
 		}
@@ -50,11 +72,11 @@ func (s *CartServiceImpl) AddToCart(ctx context.Context, userID uint64, req requ
 		Quantity:  req.Quantity,
 	}
 
-	if err := s.Repo.Create(ctx, &newCart); err != nil {
+	if err := s.CartRepo.Create(ctx, &newCart); err != nil {
 		return nil, err
 	}
 
-	cart, err = s.Repo.FindByIDAndUserID(ctx, newCart.ID, userID)
+	cart, err = s.CartRepo.FindByIDAndUserID(ctx, newCart.ID, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -63,7 +85,7 @@ func (s *CartServiceImpl) AddToCart(ctx context.Context, userID uint64, req requ
 }
 
 func (s *CartServiceImpl) FindAll(ctx context.Context, userID uint64) (*response.CartListResponse, error) {
-	carts, err := s.Repo.FindAllByUserID(ctx, userID)
+	carts, err := s.CartRepo.FindAllByUserID(ctx, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -78,18 +100,29 @@ func (s *CartServiceImpl) FindAll(ctx context.Context, userID uint64) (*response
 }
 
 func (s *CartServiceImpl) Update(ctx context.Context, id uint64, userID uint64, req request.UpdateCartRequest) (*response.CartResponse, error) {
-	cart, err := s.Repo.FindByIDAndUserID(ctx, id, userID)
+	if req.Quantity <= 0 {
+		return nil, utils.BadRequest("quantity must be greater than 0")
+	}
+
+	cart, err := s.CartRepo.FindByIDAndUserID(ctx, id, userID)
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, utils.NotFound("cart not found")
+		}
 		return nil, err
+	}
+
+	if cart.Product.Stock < req.Quantity {
+		return nil, utils.BadRequest("insufficient stock")
 	}
 
 	cart.Quantity = req.Quantity
 
-	if err := s.Repo.Update(ctx, cart); err != nil {
+	if err := s.CartRepo.Update(ctx, cart); err != nil {
 		return nil, err
 	}
 
-	cart, err = s.Repo.FindByIDAndUserID(ctx, id, userID)
+	cart, err = s.CartRepo.FindByIDAndUserID(ctx, id, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -99,10 +132,13 @@ func (s *CartServiceImpl) Update(ctx context.Context, id uint64, userID uint64, 
 }
 
 func (s *CartServiceImpl) Delete(ctx context.Context, id uint64, userID uint64) error {
-	_, err := s.Repo.FindByIDAndUserID(ctx, id, userID)
+	_, err := s.CartRepo.FindByIDAndUserID(ctx, id, userID)
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return utils.NotFound("cart not found")
+		}
 		return err
 	}
-	
-	return s.Repo.Delete(ctx, id, userID)
+
+	return s.CartRepo.Delete(ctx, id, userID)
 }

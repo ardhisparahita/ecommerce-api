@@ -8,6 +8,7 @@ import (
 	"github.com/ardhisparahita/ecommerce-api/internal/dto/request"
 	"github.com/ardhisparahita/ecommerce-api/internal/dto/response"
 	"github.com/ardhisparahita/ecommerce-api/internal/repository"
+	"github.com/ardhisparahita/ecommerce-api/pkg/utils"
 	"gorm.io/gorm"
 )
 
@@ -44,6 +45,9 @@ func NewCheckoutService(
 func (s *CheckoutServiceImpl) Checkout(ctx context.Context, userID uint64, req request.CheckoutRequest) (*response.OrderResponse, error) {
 	address, err := s.AddressRepo.FindByIDAndUserID(ctx, req.AddressID, userID)
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, utils.NotFound("address not found")
+		}
 		return nil, err
 	}
 
@@ -53,14 +57,14 @@ func (s *CheckoutServiceImpl) Checkout(ctx context.Context, userID uint64, req r
 	}
 
 	if len(carts) == 0 {
-		return nil, errors.New("Cart is empty")
+		return nil, errors.New("cart is empty")
 	}
 
 	var grandTotal float64
 
 	for _, cart := range carts {
 		if cart.Product.Stock < cart.Quantity {
-			return nil, errors.New(cart.Product.Name + " stock is insufficient")
+			return nil, utils.BadRequest(cart.Product.Name + " stock is insufficient")
 		}
 		grandTotal += cart.Product.Price * float64(cart.Quantity)
 	}

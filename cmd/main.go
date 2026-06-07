@@ -46,7 +46,7 @@ func main() {
 	addressHandler := handler.NewAddressHandler(addressService)
 
 	cartRepo := repository.NewCartRepository(db)
-	cartService := service.NewCartService(cartRepo)
+	cartService := service.NewCartService(cartRepo, productRepo)
 	cartHandler := handler.NewCartHandler(cartService)
 
 	orderRepo := repository.NewOrderRepository(db)

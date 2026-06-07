@@ -59,3 +59,22 @@ func (r *OrderRepositoryImpl) FindByID(ctx context.Context, id uint64) (*domain.
 func (r *OrderRepositoryImpl) Update(ctx context.Context, order *domain.Order) error {
 	return r.DB.WithContext(ctx).Save(order).Error
 }
+
+func (r *OrderRepositoryImpl) FindByIDWithItems(ctx context.Context, id uint64) (*domain.Order, error) {
+	var order domain.Order
+
+	err := r.DB.WithContext(ctx).Preload("OrderItems").Where("id = ?", id).First(&order).Error
+	if err != nil {
+		return nil, err
+	}
+	return &order, err
+}
+func (r *OrderRepositoryImpl) FindByIDAndUserIDWithItems(ctx context.Context, id uint64, userID uint64) (*domain.Order, error) {
+	var order domain.Order
+
+	err := r.DB.WithContext(ctx).Preload("OrderItems").Where("id = ? AND user_id = ?", id, userID).First(&order).Error
+	if err != nil {
+		return nil, err
+	}
+	return &order, err
+}

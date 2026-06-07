@@ -7,6 +7,7 @@ import (
 	"github.com/ardhisparahita/ecommerce-api/internal/dto/response"
 	"github.com/ardhisparahita/ecommerce-api/internal/mapper"
 	"github.com/ardhisparahita/ecommerce-api/internal/repository"
+	"github.com/ardhisparahita/ecommerce-api/pkg/utils"
 	"gorm.io/gorm"
 )
 
@@ -43,6 +44,9 @@ func (s *OrderServiceImpl) FindAll(ctx context.Context, userID uint64) ([]respon
 func (s *OrderServiceImpl) FindByID(ctx context.Context, id uint64, userID uint64) (*response.OrderDetailResponse, error) {
 	order, err := s.OrderRepo.FindByIDAndUserID(ctx, id, userID)
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, utils.NotFound("order not found")
+		}
 		return nil, err
 	}
 
@@ -52,15 +56,21 @@ func (s *OrderServiceImpl) FindByID(ctx context.Context, id uint64, userID uint6
 func (s *OrderServiceImpl) MarkAsPaid(ctx context.Context, id uint64) error {
 	order, err := s.OrderRepo.FindByID(ctx, id)
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return utils.NotFound("order not found")
+		}
 		return err
 	}
 
 	if order.Status != "PENDING" {
-		return errors.New("order already processed")
+		return utils.BadRequest("order already processed")
 	}
 
 	payment, err := s.PaymentRepo.FIndByOrderID(ctx, order.ID)
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return utils.NotFound("payment not found")
+		}
 		return err
 	}
 
@@ -82,13 +92,16 @@ func (s *OrderServiceImpl) MarkAsPaid(ctx context.Context, id uint64) error {
 }
 
 func (s *OrderServiceImpl) MarkAsFailed(ctx context.Context, id uint64) error {
-	order, err := s.OrderRepo.FindByID(ctx, id)
+	order, err := s.OrderRepo.FindByIDWithItems(ctx, id)
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return utils.NotFound("order not found")
+		}
 		return err
 	}
 
 	if order.Status != "PENDING" {
-		return errors.New("order already processed")
+		return utils.BadRequest("order already processed")
 	}
 
 	payment, err := s.PaymentRepo.FIndByOrderID(ctx, order.ID)
@@ -112,6 +125,11 @@ func (s *OrderServiceImpl) MarkAsFailed(ctx context.Context, id uint64) error {
 
 		payment.Status = "FAILED"
 
+		if err := s.PaymentRepo.UpdateTx(ctx, tx, payment); err != nil {
+			return err
+		}
+
+		order.Status = "CANCELLED"
 		if err := s.OrderRepo.UpdateTx(ctx, tx, order); err != nil {
 			return err
 		}
@@ -121,13 +139,16 @@ func (s *OrderServiceImpl) MarkAsFailed(ctx context.Context, id uint64) error {
 }
 
 func (s *OrderServiceImpl) Cancel(ctx context.Context, id uint64, userID uint64) error {
-	order, err := s.OrderRepo.FindByIDAndUserID(ctx, id, userID)
+	order, err := s.OrderRepo.FindByIDAndUserIDWithItems(ctx, id, userID)
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return utils.NotFound("order not found")
+		}
 		return err
 	}
 
 	if order.Status != "PENDING" {
-		return errors.New(
+		return utils.BadRequest(
 			"only pending orders can be cancelled",
 		)
 	}
@@ -170,11 +191,14 @@ func (s *OrderServiceImpl) Cancel(ctx context.Context, id uint64, userID uint64)
 func (s *OrderServiceImpl) MarkAsShipped(ctx context.Context, id uint64) error {
 	order, err := s.OrderRepo.FindByID(ctx, id)
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return utils.NotFound("order not found")
+		}
 		return err
 	}
 
 	if order.Status != "PAID" {
-		return errors.New("Order must be paid before shipping")
+		return utils.BadRequest("order must be paid before shipping")
 	}
 
 	order.Status = "SHIPPED"
@@ -185,11 +209,14 @@ func (s *OrderServiceImpl) MarkAsShipped(ctx context.Context, id uint64) error {
 func (s *OrderServiceImpl) MarkAsCompleted(ctx context.Context, id uint64) error {
 	order, err := s.OrderRepo.FindByID(ctx, id)
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return utils.NotFound("order not found")
+		}
 		return err
 	}
 
 	if order.Status != "SHIPPED" {
-		return errors.New("Order must be shipped first")
+		return utils.BadRequest("order must be shipped first")
 	}
 
 	order.Status = "COMPLETED"

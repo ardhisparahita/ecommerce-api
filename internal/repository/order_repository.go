@@ -14,4 +14,6 @@ type OrderRepository interface {
 	Update(ctx context.Context, order *domain.Order) error
 	FindAllByUserID(ctx context.Context, userID uint64) ([]domain.Order, error)
 	FindByIDAndUserID(ctx context.Context, id uint64, userID uint64) (*domain.Order, error)
+	FindByIDWithItems(ctx context.Context, id uint64) (*domain.Order, error)
+	FindByIDAndUserIDWithItems(ctx context.Context, id uint64, userID uint64) (*domain.Order, error)
 }

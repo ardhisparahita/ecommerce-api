@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 	"math"
 
 	"github.com/ardhisparahita/ecommerce-api/internal/domain"
@@ -9,6 +10,8 @@ import (
 	"github.com/ardhisparahita/ecommerce-api/internal/dto/response"
 	"github.com/ardhisparahita/ecommerce-api/internal/mapper"
 	"github.com/ardhisparahita/ecommerce-api/internal/repository"
+	"github.com/ardhisparahita/ecommerce-api/pkg/utils"
+	"gorm.io/gorm"
 )
 
 type ProductServiceImpl struct {
@@ -40,12 +43,9 @@ func (s *ProductServiceImpl) Create(ctx context.Context, req request.CreateProdu
 }
 
 func (s *ProductServiceImpl) FindAll(ctx context.Context, req request.ProductQueryRequest) (*response.ProductListResponse, error) {
-	if req.Page <= 0 {
-		req.Page = 1
-	}
-	if req.Limit <= 0 {
-		req.Limit = 10
-	}
+	req.Page, req.Limit = utils.NormalizePagination(
+		req.Page, req.Limit,
+	)
 
 	products, totalRows, err := s.Repo.FindAll(ctx, req)
 	if err != nil {
@@ -67,6 +67,11 @@ func (s *ProductServiceImpl) FindAll(ctx context.Context, req request.ProductQue
 func (s *ProductServiceImpl) FindByID(ctx context.Context, id uint64) (*response.ProductResponse, error) {
 	product, err := s.Repo.FindByID(ctx, id)
 	if err != nil {
+
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, utils.NotFound("product not found")
+		}
+
 		return nil, err
 	}
 
@@ -76,6 +81,11 @@ func (s *ProductServiceImpl) FindByID(ctx context.Context, id uint64) (*response
 func (s *ProductServiceImpl) Update(ctx context.Context, id uint64, req request.UpdateProductRequest) (*response.ProductResponse, error) {
 	product, err := s.Repo.FindByID(ctx, id)
 	if err != nil {
+
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, utils.NotFound("product not found")
+		}
+
 		return nil, err
 	}
 
@@ -86,8 +96,7 @@ func (s *ProductServiceImpl) Update(ctx context.Context, id uint64, req request.
 	product.Stock = req.Stock
 	product.ImageURL = req.ImageURL
 
-	err = s.Repo.Update(ctx, product)
-	if err != nil {
+	if err := s.Repo.Update(ctx, product); err != nil {
 		return nil, err
 	}
 
@@ -95,5 +104,14 @@ func (s *ProductServiceImpl) Update(ctx context.Context, id uint64, req request.
 }
 
 func (s *ProductServiceImpl) Delete(ctx context.Context, id uint64) error {
+	_, err := s.Repo.FindByID(ctx, id)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return utils.NotFound("product not found")
+		}
+
+		return err
+	}
+
 	return s.Repo.Delete(ctx, id)
 }

@@ -44,7 +44,7 @@ func (s *AuthServiceImpl) Register(ctx context.Context, req request.RegisterRequ
 func (s *AuthServiceImpl) Login(ctx context.Context, req request.LoginRequest) (*response.AuthResponse, error) {
 	user, err := s.Repo.FindByEmail(ctx, req.Email)
 	if err != nil {
-		return nil, err
+		return nil, utils.Unauthorized("invalid email or password")
 	}
 
 	err = bcrypt.CompareHashAndPassword(
@@ -52,7 +52,7 @@ func (s *AuthServiceImpl) Login(ctx context.Context, req request.LoginRequest) (
 		[]byte(req.Password),
 	)
 	if err != nil {
-		return nil, err
+		return nil, utils.Unauthorized("invalid email or password")
 	}
 
 	token, err := utils.GenerateToken(

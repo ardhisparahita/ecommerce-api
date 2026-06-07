@@ -44,7 +44,7 @@ func ToOrderDetailResponse(order *domain.Order) *response.OrderDetailResponse {
 		Items:         items,
 		Payment: response.PaymentDetailResponse{
 			Method: order.Payment.Method,
-			Status: order.Status,
+			Status: order.Payment.Status,
 			Amount: order.Payment.Amount,
 		},
 	}

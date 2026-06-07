@@ -21,7 +21,11 @@ func (h *AuthHandler) Register(c *fiber.Ctx) error {
 	var req request.RegisterRequest
 
 	if err := c.BodyParser(&req); err != nil {
-		return err
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	if err := utils.ValidationStruct(req); err != nil {
+		return utils.ResponseError(c, err)
 	}
 
 	err := h.Service.Register(c.Context(), req)
@@ -38,18 +42,22 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 	var req request.LoginRequest
 
 	if err := c.BodyParser(&req); err != nil {
-		return err
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 
-	res, err := h.Service.Login(c.Context(), req)
+	if err := utils.ValidationStruct(req); err != nil {
+		return utils.ResponseError(c, err)
+	}
+
+	data, err := h.Service.Login(c.Context(), req)
 	if err != nil {
 		return err
 	}
 
-	return utils.Success(
+	return utils.ResponseSuccess(
 		c,
 		fiber.StatusOK,
 		"login success",
-		res,
+		data,
 	)
 }

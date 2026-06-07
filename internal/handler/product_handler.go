@@ -26,12 +26,16 @@ func (h *ProductHandler) Create(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 
+	if err := utils.ValidationStruct(req); err != nil {
+		return utils.ResponseError(c, err)
+	}
+
 	data, err := h.Service.Create(c.UserContext(), req)
 	if err != nil {
 		return err
 	}
 
-	return utils.Success(
+	return utils.ResponseSuccess(
 		c,
 		fiber.StatusOK,
 		"product created",
@@ -46,12 +50,16 @@ func (h *ProductHandler) FindAll(c *fiber.Ctx) error {
 		return err
 	}
 
+	if err := utils.ValidationStruct(req); err != nil {
+		return utils.ResponseError(c, err)
+	}
+
 	data, err := h.Service.FindAll(c.UserContext(), req)
 	if err != nil {
 		return err
 	}
 
-	return utils.Success(
+	return utils.ResponseSuccess(
 		c,
 		fiber.StatusOK,
 		"get products",
@@ -62,10 +70,7 @@ func (h *ProductHandler) FindAll(c *fiber.Ctx) error {
 func (h *ProductHandler) FindByID(c *fiber.Ctx) error {
 	id, err := strconv.ParseUint(c.Params("id"), 10, 64)
 	if err != nil {
-		return fiber.NewError(
-			fiber.StatusBadGateway,
-			"invalid id",
-		)
+		return fiber.NewError(fiber.StatusBadRequest, "invalid product Id")
 	}
 
 	res, err := h.Service.FindByID(c.UserContext(), id)
@@ -73,7 +78,7 @@ func (h *ProductHandler) FindByID(c *fiber.Ctx) error {
 		return err
 	}
 
-	return utils.Success(
+	return utils.ResponseSuccess(
 		c,
 		fiber.StatusOK,
 		"get one product",
@@ -84,10 +89,7 @@ func (h *ProductHandler) FindByID(c *fiber.Ctx) error {
 func (h *ProductHandler) Update(c *fiber.Ctx) error {
 	id, err := strconv.ParseUint(c.Params("id"), 10, 64)
 	if err != nil {
-		return fiber.NewError(
-			fiber.StatusBadGateway,
-			"invalid id",
-		)
+		return fiber.NewError(fiber.StatusBadRequest, "invalid product Id")
 	}
 
 	var req request.UpdateProductRequest
@@ -96,12 +98,16 @@ func (h *ProductHandler) Update(c *fiber.Ctx) error {
 		return err
 	}
 
+	if err := utils.ValidationStruct(req); err != nil {
+		return utils.ResponseError(c, err)
+	}
+
 	data, err := h.Service.Update(c.UserContext(), id, req)
 	if err != nil {
 		return err
 	}
 
-	return utils.Success(
+	return utils.ResponseSuccess(
 		c,
 		fiber.StatusOK,
 		"product updated",
@@ -112,10 +118,7 @@ func (h *ProductHandler) Update(c *fiber.Ctx) error {
 func (h *ProductHandler) Delete(c *fiber.Ctx) error {
 	id, err := strconv.ParseUint(c.Params("id"), 10, 64)
 	if err != nil {
-		return fiber.NewError(
-			fiber.StatusBadRequest,
-			"invalid id",
-		)
+		return fiber.NewError(fiber.StatusBadRequest, "invalid product Id")
 	}
 
 	err = h.Service.Delete(c.UserContext(), id)
@@ -123,7 +126,7 @@ func (h *ProductHandler) Delete(c *fiber.Ctx) error {
 		return err
 	}
 
-	return utils.Success(
+	return utils.ResponseSuccess(
 		c,
 		fiber.StatusOK,
 		"product deleted",

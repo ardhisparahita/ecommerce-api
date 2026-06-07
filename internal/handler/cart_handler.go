@@ -24,6 +24,10 @@ func (h *CartHandler) AddToCart(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 
+	if err := utils.ValidationStruct(req); err != nil {
+		return utils.ResponseError(c, err)
+	}
+
 	userID := utils.GetUserID(c)
 
 	data, err := h.Service.AddToCart(c.UserContext(), userID, req)
@@ -31,7 +35,7 @@ func (h *CartHandler) AddToCart(c *fiber.Ctx) error {
 		return err
 	}
 
-	return utils.Success(
+	return utils.ResponseSuccess(
 		c,
 		fiber.StatusOK,
 		"product added to cart",
@@ -47,7 +51,7 @@ func (h *CartHandler) FindAll(c *fiber.Ctx) error {
 		return err
 	}
 
-	return utils.Success(
+	return utils.ResponseSuccess(
 		c,
 		fiber.StatusOK,
 		"get all carts",
@@ -67,6 +71,10 @@ func (h *CartHandler) Update(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 
+	if err := utils.ValidationStruct(req); err != nil {
+		return utils.ResponseError(c, err)
+	}
+
 	userID := utils.GetUserID(c)
 
 	data, err := h.Service.Update(c.UserContext(), id, userID, req)
@@ -74,7 +82,7 @@ func (h *CartHandler) Update(c *fiber.Ctx) error {
 		return err
 	}
 
-	return utils.Success(
+	return utils.ResponseSuccess(
 		c,
 		fiber.StatusOK,
 		"cart updated",
@@ -93,7 +101,7 @@ func (h *CartHandler) Delete(c *fiber.Ctx) error {
 		return err
 	}
 
-	return utils.Success(
+	return utils.ResponseSuccess(
 		c,
 		fiber.StatusOK,
 		"cart deleted",

@@ -1,17 +1,17 @@
 package request
 
 type CreateAddressRequest struct {
-	RecipientName string `json:"recipient_name"`
-	Phone         string `json:"phone"`
-	Address       string `json:"address"`
-	City          string `json:"city"`
-	PostalCode    string `json:"postal_code"`
+	RecipientName string `json:"recipient_name" validate:"required"`
+	Phone         string `json:"phone" validate:"required"`
+	Address       string `json:"address" validate:"required"`
+	City          string `json:"city" validate:"required"`
+	PostalCode    string `json:"postal_code" validate:"required"`
 }
 
 type UpdateAddressRequest struct {
-	RecipientName string `json:"recipient_name"`
-	Phone         string `json:"phone"`
-	Address       string `json:"address"`
-	City          string `json:"city"`
-	PostalCode    string `json:"postal_code"`
+	RecipientName string `json:"recipient_name" validate:"required"`
+	Phone         string `json:"phone" validate:"required"`
+	Address       string `json:"address" validate:"required"`
+	City          string `json:"city" validate:"required"`
+	PostalCode    string `json:"postal_code" validate:"required"`
 }

@@ -5,7 +5,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func Success(c *fiber.Ctx, code int, message string, data interface{}) error {
+func ResponseSuccess(c *fiber.Ctx, code int, message string, data interface{}) error {
 	return c.Status(code).JSON(
 		response.WebResponse{
 			Code:    code,
@@ -14,4 +14,13 @@ func Success(c *fiber.Ctx, code int, message string, data interface{}) error {
 			Data:    data,
 		},
 	)
+}
+
+func ResponseError(c *fiber.Ctx, err error) error {
+	return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+		"code":    fiber.StatusBadRequest,
+		"status":  "error",
+		"message": "validation failed",
+		"errors":  ValidationErrors(err),
+	})
 }

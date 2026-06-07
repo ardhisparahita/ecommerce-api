@@ -1,19 +1,19 @@
 package request
 
 type CreateProductRequest struct {
-	CategoryID  uint64  `json:"category_id"`
-	Name        string  `json:"name"`
-	Description string  `json:"description"`
-	Price       float64 `json:"price"`
-	Stock       int     `json:"stock"`
-	ImageURL    string  `json:"image_url"`
+	CategoryID  uint64  `json:"category_id" validate:"required"`
+	Name        string  `json:"name" validate:"required,min=3,max=255"`
+	Description string  `json:"description" validate:"required"`
+	Price       float64 `json:"price" validate:"required,gt=0"`
+	Stock       int     `json:"stock" validate:"required,gt=0"`
+	ImageURL    string  `json:"image_url" validate:"required"`
 }
 
 type UpdateProductRequest struct {
-	CategoryID  uint64  `json:"category_id"`
-	Name        string  `json:"name"`
-	Description string  `json:"description"`
-	Price       float64 `json:"price"`
-	Stock       int     `json:"stock"`
-	ImageURL    string  `json:"image_url"`
+	CategoryID  uint64  `json:"category_id" validate:"required"`
+	Name        string  `json:"name" validate:"required,min=3,max=255"`
+	Description string  `json:"description" validate:"required"`
+	Price       float64 `json:"price" validate:"required,gt=0"`
+	Stock       int     `json:"stock" validate:"gte=0"`
+	ImageURL    string  `json:"image_url" validate:"required"`
 }

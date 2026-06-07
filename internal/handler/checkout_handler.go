@@ -24,6 +24,10 @@ func (h *CheckoutHandler) Checkout(c *fiber.Ctx) error {
 		return err
 	}
 
+	if err := utils.ValidationStruct(req); err != nil {
+		return utils.ResponseError(c, err)
+	}
+
 	userID := utils.GetUserID(c)
 
 	data, err := h.Service.Checkout(c.UserContext(), userID, req)
@@ -31,7 +35,7 @@ func (h *CheckoutHandler) Checkout(c *fiber.Ctx) error {
 		return err
 	}
 
-	return utils.Success(
+	return utils.ResponseSuccess(
 		c,
 		fiber.StatusOK,
 		"checkout success",

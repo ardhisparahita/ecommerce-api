@@ -24,12 +24,16 @@ func (h *CategoryHandler) Create(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 
-	data, err := h.Service.Create(c.Context(), req)
+	if err := utils.ValidationStruct(req); err != nil {
+		return utils.ResponseError(c, err)
+	}
+
+	data, err := h.Service.Create(c.UserContext(), req)
 	if err != nil {
 		return err
 	}
 
-	return utils.Success(
+	return utils.ResponseSuccess(
 		c,
 		fiber.StatusOK,
 		"category created",
@@ -39,16 +43,16 @@ func (h *CategoryHandler) Create(c *fiber.Ctx) error {
 }
 
 func (h *CategoryHandler) FindAll(c *fiber.Ctx) error {
-	res, err := h.Service.FindAll(c.Context())
+	data, err := h.Service.FindAll(c.UserContext())
 
 	if err != nil {
 		return err
 	}
 
-	return utils.Success(
+	return utils.ResponseSuccess(
 		c,
 		fiber.StatusOK,
 		"get all categories",
-		res,
+		data,
 	)
 }

@@ -24,6 +24,10 @@ func (h *AddressHandler) Create(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 
+	if err := utils.ValidationStruct(req); err != nil {
+		return utils.ResponseError(c, err)
+	}
+
 	userID := utils.GetUserID(c)
 
 	data, err := h.Service.Create(c.UserContext(), userID, req)
@@ -31,7 +35,7 @@ func (h *AddressHandler) Create(c *fiber.Ctx) error {
 		return err
 	}
 
-	return utils.Success(
+	return utils.ResponseSuccess(
 		c,
 		fiber.StatusOK,
 		"address created",
@@ -47,7 +51,7 @@ func (h *AddressHandler) FindAll(c *fiber.Ctx) error {
 		return err
 	}
 
-	return utils.Success(
+	return utils.ResponseSuccess(
 		c,
 		fiber.StatusOK,
 		"get all addresses",
@@ -68,7 +72,7 @@ func (h *AddressHandler) FindByID(c *fiber.Ctx) error {
 		return err
 	}
 
-	return utils.Success(
+	return utils.ResponseSuccess(
 		c,
 		fiber.StatusOK,
 		"get one address",
@@ -88,6 +92,10 @@ func (h *AddressHandler) Update(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 
+	if err := utils.ValidationStruct(req); err != nil {
+		return utils.ResponseError(c, err)
+	}
+
 	userID := utils.GetUserID(c)
 
 	data, err := h.Service.Update(c.UserContext(), id, userID, req)
@@ -95,7 +103,7 @@ func (h *AddressHandler) Update(c *fiber.Ctx) error {
 		return err
 	}
 
-	return utils.Success(
+	return utils.ResponseSuccess(
 		c,
 		fiber.StatusOK,
 		"address updated",
@@ -116,7 +124,7 @@ func (h *AddressHandler) Delete(c *fiber.Ctx) error {
 		return err
 	}
 
-	return utils.Success(
+	return utils.ResponseSuccess(
 		c,
 		fiber.StatusOK,
 		"address deleted",

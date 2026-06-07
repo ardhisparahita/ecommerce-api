@@ -24,7 +24,7 @@ func (h *OrderHandler) FindAll(c *fiber.Ctx) error {
 		return err
 	}
 
-	return utils.Success(
+	return utils.ResponseSuccess(
 		c,
 		fiber.StatusOK,
 		"get orders",
@@ -35,7 +35,7 @@ func (h *OrderHandler) FindAll(c *fiber.Ctx) error {
 func (h *OrderHandler) FindByID(c *fiber.Ctx) error {
 	id, err := strconv.ParseUint(c.Params("id"), 10, 64)
 	if err != nil {
-		return err
+		return fiber.NewError(fiber.StatusBadRequest, "invalid order Id")
 	}
 
 	userID := utils.GetUserID(c)
@@ -45,7 +45,7 @@ func (h *OrderHandler) FindByID(c *fiber.Ctx) error {
 		return err
 	}
 
-	return utils.Success(
+	return utils.ResponseSuccess(
 		c,
 		fiber.StatusOK,
 		"get order details",
@@ -56,7 +56,7 @@ func (h *OrderHandler) FindByID(c *fiber.Ctx) error {
 func (h *OrderHandler) Cancel(c *fiber.Ctx) error {
 	id, err := strconv.ParseUint(c.Params("id"), 10, 64)
 	if err != nil {
-		return err
+		return fiber.NewError(fiber.StatusBadRequest, "invalid order Id")
 	}
 
 	userID := utils.GetUserID(c)
@@ -66,7 +66,7 @@ func (h *OrderHandler) Cancel(c *fiber.Ctx) error {
 		return err
 	}
 
-	return utils.Success(
+	return utils.ResponseSuccess(
 		c,
 		fiber.StatusOK,
 		"order cancelled",
@@ -77,7 +77,7 @@ func (h *OrderHandler) Cancel(c *fiber.Ctx) error {
 func (h *OrderHandler) MarkAsShipped(c *fiber.Ctx) error {
 	id, err := strconv.ParseUint(c.Params("id"), 10, 64)
 	if err != nil {
-		return err
+		return fiber.NewError(fiber.StatusBadRequest, "invalid order Id")
 	}
 
 	err = h.Service.MarkAsShipped(c.UserContext(), id)
@@ -85,7 +85,7 @@ func (h *OrderHandler) MarkAsShipped(c *fiber.Ctx) error {
 		return err
 	}
 
-	return utils.Success(
+	return utils.ResponseSuccess(
 		c,
 		fiber.StatusOK,
 		"order shipped",
@@ -97,7 +97,7 @@ func (h *OrderHandler) MarkAsShipped(c *fiber.Ctx) error {
 func (h *OrderHandler) MarkAsCompleted(c *fiber.Ctx) error {
 	id, err := strconv.ParseUint(c.Params("id"), 10, 64)
 	if err != nil {
-		return err
+		return fiber.NewError(fiber.StatusBadRequest, "invalid order Id")
 	}
 
 	err = h.Service.MarkAsCompleted(c.UserContext(), id)
@@ -105,7 +105,7 @@ func (h *OrderHandler) MarkAsCompleted(c *fiber.Ctx) error {
 		return err
 	}
 
-	return utils.Success(
+	return utils.ResponseSuccess(
 		c,
 		fiber.StatusOK,
 		"order completed",
@@ -116,14 +116,15 @@ func (h *OrderHandler) MarkAsCompleted(c *fiber.Ctx) error {
 func (h *OrderHandler) MarkAsPaid(c *fiber.Ctx) error {
 	id, err := strconv.ParseUint(c.Params("id"), 10, 64)
 	if err != nil {
-		return err
+		return fiber.NewError(fiber.StatusBadRequest, "invalid order Id")
 	}
+
 	err = h.Service.MarkAsPaid(c.UserContext(), id)
 	if err != nil {
 		return err
 	}
 
-	return utils.Success(
+	return utils.ResponseSuccess(
 		c,
 		fiber.StatusOK,
 		"payment success",
@@ -134,14 +135,15 @@ func (h *OrderHandler) MarkAsPaid(c *fiber.Ctx) error {
 func (h *OrderHandler) MarkAsFailed(c *fiber.Ctx) error {
 	id, err := strconv.ParseUint(c.Params("id"), 10, 64)
 	if err != nil {
-		return err
+		return fiber.NewError(fiber.StatusBadRequest, "invalid order Id")
 	}
+
 	err = h.Service.MarkAsFailed(c.UserContext(), id)
 	if err != nil {
 		return err
 	}
 
-	return utils.Success(
+	return utils.ResponseSuccess(
 		c,
 		fiber.StatusOK,
 		"payment failed",

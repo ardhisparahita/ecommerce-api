@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/ardhisparahita/ecommerce-api/internal/domain"
+	"github.com/ardhisparahita/ecommerce-api/internal/dto/request"
 	"gorm.io/gorm"
 )
 
@@ -21,11 +22,32 @@ func (r *ProductRepositoryImpl) Create(ctx context.Context, product *domain.Prod
 	return r.DB.WithContext(ctx).Create(product).Error
 }
 
-func (r *ProductRepositoryImpl) FindAll(ctx context.Context) ([]domain.Product, error) {
+func (r *ProductRepositoryImpl) FindAll(ctx context.Context, req request.ProductQueryRequest) ([]domain.Product, int64, error) {
 	var products []domain.Product
+	var totalRows int64
 
-	err := r.DB.WithContext(ctx).Preload("Category").Find(&products).Error
-	return products, err
+	db := r.DB.WithContext(ctx).Model(&domain.Product{}).Preload("Category")
+
+	if req.Search != "" {
+		db = db.Where("name LIKE ?", "%"+req.Search+"%")
+	}
+
+	if req.CategoryID > 0 {
+		db = db.Where("category_id = ?", req.CategoryID)
+	}
+
+	if err := db.Count(&totalRows).Error; err != nil {
+		return nil, 0, err
+	}
+
+	offset := (req.Page - 1) * req.Limit
+
+	err := db.Offset(offset).Limit(req.Limit).Find(&products).Error
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return products, totalRows, err
 }
 
 func (r *ProductRepositoryImpl) FindByID(ctx context.Context, id uint64) (*domain.Product, error) {
@@ -40,7 +62,7 @@ func (r *ProductRepositoryImpl) Update(ctx context.Context, product *domain.Prod
 	return r.DB.WithContext(ctx).Save(product).Error
 }
 
-func (r *ProductRepositoryImpl) UpdateTx(ctx context.Context, tx *gorm.DB ,product *domain.Product) error {
+func (r *ProductRepositoryImpl) UpdateTx(ctx context.Context, tx *gorm.DB, product *domain.Product) error {
 	return tx.WithContext(ctx).Save(product).Error
 }
 

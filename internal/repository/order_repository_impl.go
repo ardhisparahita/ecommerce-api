@@ -42,3 +42,20 @@ func (r *OrderRepositoryImpl) FindByIDAndUserID(ctx context.Context, id uint64, 
 
 	return &order, nil
 }
+
+func (r *OrderRepositoryImpl) UpdateTx(ctx context.Context, tx *gorm.DB, order *domain.Order) error {
+	return tx.WithContext(ctx).Save(order).Error
+}
+
+func (r *OrderRepositoryImpl) FindByID(ctx context.Context, id uint64) (*domain.Order, error) {
+	var order domain.Order
+	err := r.DB.WithContext(ctx).Where("id = ?", id).First(&order).Error
+	if err != nil {
+		return nil, err
+	}
+	return &order, nil
+}
+
+func (r *OrderRepositoryImpl) Update(ctx context.Context, order *domain.Order) error {
+	return r.DB.WithContext(ctx).Save(order).Error
+}

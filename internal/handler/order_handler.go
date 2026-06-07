@@ -52,3 +52,99 @@ func (h *OrderHandler) FindByID(c *fiber.Ctx) error {
 		data,
 	)
 }
+
+func (h *OrderHandler) Cancel(c *fiber.Ctx) error {
+	id, err := strconv.ParseUint(c.Params("id"), 10, 64)
+	if err != nil {
+		return err
+	}
+
+	userID := utils.GetUserID(c)
+
+	err = h.Service.Cancel(c.UserContext(), id, userID)
+	if err != nil {
+		return err
+	}
+
+	return utils.Success(
+		c,
+		fiber.StatusOK,
+		"order cancelled",
+		nil,
+	)
+}
+
+func (h *OrderHandler) MarkAsShipped(c *fiber.Ctx) error {
+	id, err := strconv.ParseUint(c.Params("id"), 10, 64)
+	if err != nil {
+		return err
+	}
+
+	err = h.Service.MarkAsShipped(c.UserContext(), id)
+	if err != nil {
+		return err
+	}
+
+	return utils.Success(
+		c,
+		fiber.StatusOK,
+		"order shipped",
+		nil,
+	)
+
+}
+
+func (h *OrderHandler) MarkAsCompleted(c *fiber.Ctx) error {
+	id, err := strconv.ParseUint(c.Params("id"), 10, 64)
+	if err != nil {
+		return err
+	}
+
+	err = h.Service.MarkAsCompleted(c.UserContext(), id)
+	if err != nil {
+		return err
+	}
+
+	return utils.Success(
+		c,
+		fiber.StatusOK,
+		"order completed",
+		nil,
+	)
+}
+
+func (h *OrderHandler) MarkAsPaid(c *fiber.Ctx) error {
+	id, err := strconv.ParseUint(c.Params("id"), 10, 64)
+	if err != nil {
+		return err
+	}
+	err = h.Service.MarkAsPaid(c.UserContext(), id)
+	if err != nil {
+		return err
+	}
+
+	return utils.Success(
+		c,
+		fiber.StatusOK,
+		"payment success",
+		nil,
+	)
+}
+
+func (h *OrderHandler) MarkAsFailed(c *fiber.Ctx) error {
+	id, err := strconv.ParseUint(c.Params("id"), 10, 64)
+	if err != nil {
+		return err
+	}
+	err = h.Service.MarkAsFailed(c.UserContext(), id)
+	if err != nil {
+		return err
+	}
+
+	return utils.Success(
+		c,
+		fiber.StatusOK,
+		"payment failed",
+		nil,
+	)
+}

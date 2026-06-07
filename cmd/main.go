@@ -56,7 +56,7 @@ func main() {
 	checkoutService := service.NewCheckoutService(db, cartRepo, productRepo, addressRepo, orderRepo, orderItemRepo, paymentRepo)
 	checkoutHandler := handler.NewCheckoutHandler(checkoutService)
 
-	orderService := service.NewOrderService(orderRepo)
+	orderService := service.NewOrderService(db, orderRepo, productRepo, paymentRepo)
 	orderHandler := handler.NewOrderHandler(orderService)
 
 	routes.SetupRoutes(app, userHandler, categoryHandler, productHandler, addressHandler, cartHandler, checkoutHandler, orderHandler)

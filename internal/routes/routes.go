@@ -44,4 +44,10 @@ func SetupRoutes(app *fiber.App, authHandler *handler.AuthHandler, categoryHandl
 	order := api.Group("/orders", middleware.JWT())
 	order.Get("/", orderHandler.FindAll)
 	order.Get("/:id", orderHandler.FindByID)
+	order.Patch("/:id/pay", orderHandler.MarkAsPaid)
+	order.Patch("/:id/fail", orderHandler.MarkAsFailed)
+	order.Patch("/:id/cancel", orderHandler.Cancel)
+	order.Patch("/:id/ship", orderHandler.MarkAsShipped)
+	order.Patch("/:id/complete", orderHandler.MarkAsCompleted)
+
 }

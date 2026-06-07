@@ -22,28 +22,17 @@ func ToCartResponse(cart *domain.Cart) *response.CartResponse {
 }
 
 func ToCartResponses(carts []domain.Cart) ([]response.CartResponse, float64) {
-	var (
-		responses  []response.CartResponse
-		grandTotal float64
-	)
+
+	result := make([]response.CartResponse, 0, len(carts))
+	var grandTotal float64
 
 	for _, cart := range carts {
 		subtotal := cart.Product.Price * float64(cart.Quantity)
 
 		grandTotal += subtotal
 
-		responses = append(responses, response.CartResponse{
-			ID:       cart.Product.ID,
-			Quantity: cart.Quantity,
-			Subtotal: subtotal,
-			Product: response.CartProductResponse{
-				ID:       cart.Product.ID,
-				Name:     cart.Product.Name,
-				Price:    cart.Product.Price,
-				ImageURL: cart.Product.ImageURL,
-			},
-		})
+		result = append(result, *ToCartResponse(&cart))
 	}
 
-	return responses, grandTotal
+	return result, grandTotal
 }

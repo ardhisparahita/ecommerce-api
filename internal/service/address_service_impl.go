@@ -6,6 +6,7 @@ import (
 	"github.com/ardhisparahita/ecommerce-api/internal/domain"
 	"github.com/ardhisparahita/ecommerce-api/internal/dto/request"
 	"github.com/ardhisparahita/ecommerce-api/internal/dto/response"
+	"github.com/ardhisparahita/ecommerce-api/internal/mapper"
 	"github.com/ardhisparahita/ecommerce-api/internal/repository"
 )
 
@@ -34,16 +35,7 @@ func (s *AddressServiceImpl) Create(ctx context.Context, userID uint64, req requ
 		return nil, err
 	}
 
-	res := &response.AddressResponse{
-		ID:            address.ID,
-		RecipientName: address.RecipientName,
-		Phone:         address.Phone,
-		Address:       address.Address,
-		City:          address.City,
-		PostalCode:    address.PostalCode,
-	}
-
-	return res, nil
+	return mapper.ToAddressResponse(&address), nil
 }
 
 func (s *AddressServiceImpl) FindAllByUserID(ctx context.Context, userID uint64) ([]response.AddressResponse, error) {
@@ -52,20 +44,7 @@ func (s *AddressServiceImpl) FindAllByUserID(ctx context.Context, userID uint64)
 		return nil, err
 	}
 
-	var result []response.AddressResponse
-
-	for _, address := range addresses {
-		result = append(result, response.AddressResponse{
-			ID:            address.ID,
-			RecipientName: address.RecipientName,
-			Phone:         address.Phone,
-			Address:       address.Address,
-			City:          address.City,
-			PostalCode:    address.PostalCode,
-		})
-	}
-
-	return result, nil
+	return mapper.ToAddressResponses(addresses), nil
 }
 
 func (s *AddressServiceImpl) FindByID(ctx context.Context, id uint64, userID uint64) (*response.AddressResponse, error) {
@@ -74,14 +53,7 @@ func (s *AddressServiceImpl) FindByID(ctx context.Context, id uint64, userID uin
 		return nil, err
 	}
 
-	return &response.AddressResponse{
-		ID:            address.ID,
-		RecipientName: address.RecipientName,
-		Phone:         address.Phone,
-		Address:       address.Address,
-		City:          address.City,
-		PostalCode:    address.PostalCode,
-	}, nil
+	return mapper.ToAddressResponse(address), nil
 }
 
 func (s *AddressServiceImpl) Update(ctx context.Context, id uint64, userID uint64, req request.UpdateAddressRequest) (*response.AddressResponse, error) {
@@ -101,16 +73,7 @@ func (s *AddressServiceImpl) Update(ctx context.Context, id uint64, userID uint6
 		return nil, err
 	}
 
-	res := &response.AddressResponse{
-		ID:            address.ID,
-		RecipientName: address.RecipientName,
-		Phone:         address.Phone,
-		Address:       address.Address,
-		City:          address.City,
-		PostalCode:    address.PostalCode,
-	}
-
-	return res, nil
+	return mapper.ToAddressResponse(address), nil
 }
 
 func (s *AddressServiceImpl) Delete(ctx context.Context, id uint64, userID uint64) error {

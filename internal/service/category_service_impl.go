@@ -6,6 +6,7 @@ import (
 	"github.com/ardhisparahita/ecommerce-api/internal/domain"
 	"github.com/ardhisparahita/ecommerce-api/internal/dto/request"
 	"github.com/ardhisparahita/ecommerce-api/internal/dto/response"
+	"github.com/ardhisparahita/ecommerce-api/internal/mapper"
 	"github.com/ardhisparahita/ecommerce-api/internal/repository"
 )
 
@@ -28,12 +29,7 @@ func (s *CategoryServiceImpl) Create(ctx context.Context, req request.CreateCate
 		return nil, err
 	}
 
-	res := &response.CategoryResponse{
-		ID:   category.ID,
-		Name: category.Name,
-	}
-
-	return res, nil
+	return mapper.ToCategoryResponse(&category), nil
 }
 
 func (s *CategoryServiceImpl) FindAll(ctx context.Context) ([]response.CategoryResponse, error) {
@@ -42,14 +38,5 @@ func (s *CategoryServiceImpl) FindAll(ctx context.Context) ([]response.CategoryR
 		return nil, err
 	}
 
-	var result []response.CategoryResponse
-
-	for _, c := range categories {
-		result = append(result, response.CategoryResponse{
-			ID:   c.ID,
-			Name: c.Name,
-		})
-	}
-
-	return result, nil
+	return mapper.ToCategoryResponses(categories), nil
 }

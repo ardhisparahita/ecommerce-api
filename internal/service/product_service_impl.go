@@ -37,7 +37,6 @@ func (s *ProductServiceImpl) Create(ctx context.Context, req request.CreateProdu
 	}
 
 	return mapper.ToProductResponse(&product), nil
-
 }
 
 func (s *ProductServiceImpl) FindAll(ctx context.Context, req request.ProductQueryRequest) (*response.ProductListResponse, error) {
@@ -71,18 +70,7 @@ func (s *ProductServiceImpl) FindByID(ctx context.Context, id uint64) (*response
 		return nil, err
 	}
 
-	res := &response.ProductResponse{
-		ID:          product.ID,
-		CategoryID:  product.CategoryID,
-		Category:    product.Category.Name,
-		Name:        product.Name,
-		Description: product.Description,
-		Price:       product.Price,
-		Stock:       product.Stock,
-		ImageURL:    product.ImageURL,
-	}
-
-	return res, nil
+	return mapper.ToProductResponse(product), nil
 }
 
 func (s *ProductServiceImpl) Update(ctx context.Context, id uint64, req request.UpdateProductRequest) (*response.ProductResponse, error) {
@@ -103,18 +91,7 @@ func (s *ProductServiceImpl) Update(ctx context.Context, id uint64, req request.
 		return nil, err
 	}
 
-	res := &response.ProductResponse{
-		ID:          product.ID,
-		CategoryID:  product.CategoryID,
-		Category:    product.Category.Name,
-		Name:        product.Name,
-		Description: product.Description,
-		Price:       product.Price,
-		Stock:       product.Stock,
-		ImageURL:    product.ImageURL,
-	}
-
-	return res, nil
+	return mapper.ToProductResponse(product), nil
 }
 
 func (s *ProductServiceImpl) Delete(ctx context.Context, id uint64) error {

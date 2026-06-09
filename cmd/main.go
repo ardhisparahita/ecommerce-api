@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 
+	_ "github.com/ardhisparahita/ecommerce-api/docs"
 	"github.com/ardhisparahita/ecommerce-api/internal/handler"
 	"github.com/ardhisparahita/ecommerce-api/internal/repository"
 	"github.com/ardhisparahita/ecommerce-api/internal/routes"
@@ -13,6 +14,35 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+// @title Ecommerce API
+// @version 1.0
+// @description Ecommerce Backend API using Golang Fiber
+// @host localhost:3000
+// @BasePath /api/v1
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+
+// @tag.name Auth
+// @tag.description Authentication APIs
+
+// @tag.name Categories
+// @tag.description Category APIs
+
+// @tag.name Products
+// @tag.description Product APIs
+
+// @tag.name Addresses
+// @tag.description Address APIs
+
+// @tag.name Carts
+// @tag.description Shopping Cart APIs
+
+// @tag.name Checkout
+// @tag.description Checkout APIs
+
+// @tag.name Orders
+// @tag.description Order APIs
 func main() {
 	config.LoadEnv()
 

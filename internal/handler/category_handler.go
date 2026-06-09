@@ -2,6 +2,7 @@ package handler
 
 import (
 	"github.com/ardhisparahita/ecommerce-api/internal/dto/request"
+	_ "github.com/ardhisparahita/ecommerce-api/internal/dto/response"
 	"github.com/ardhisparahita/ecommerce-api/internal/service"
 	"github.com/ardhisparahita/ecommerce-api/pkg/utils"
 	"github.com/gofiber/fiber/v2"
@@ -17,6 +18,21 @@ func NewCategoryHandler(service service.CategoryService) *CategoryHandler {
 	}
 }
 
+// Create godoc
+//
+// @Summary Create category
+// @Description Create a new category
+// @Tags Categories
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param request body request.CreateCategoryRequest true "Category Request"
+// @Success 201 {object} response.CategorySwaggerResponse
+// @Failure 400 {object} response.ErrorSwaggerResponse
+// @Failure 401 {object} response.ErrorSwaggerResponse
+// @Failure 422 {object} response.ErrorSwaggerResponse
+// @Failure 500 {object} response.ErrorSwaggerResponse
+// @Router /categories [post]
 func (h *CategoryHandler) Create(c *fiber.Ctx) error {
 	var req request.CreateCategoryRequest
 
@@ -42,6 +58,17 @@ func (h *CategoryHandler) Create(c *fiber.Ctx) error {
 
 }
 
+// FindAll godoc
+//
+// @Summary Get all categories
+// @Description Get all categories
+// @Tags Categories
+// @Security BearerAuth
+// @Produce json
+// @Success 200 {object} response.CategoryListSwaggerResponse
+// @Failure 401 {object} response.ErrorSwaggerResponse
+// @Failure 500 {object} response.ErrorSwaggerResponse
+// @Router /categories [get]
 func (h *CategoryHandler) FindAll(c *fiber.Ctx) error {
 	data, err := h.Service.FindAll(c.UserContext())
 

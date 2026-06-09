@@ -4,9 +4,12 @@ import (
 	"github.com/ardhisparahita/ecommerce-api/internal/handler"
 	"github.com/ardhisparahita/ecommerce-api/internal/middleware"
 	"github.com/gofiber/fiber/v2"
+	fiberSwagger "github.com/gofiber/swagger"
 )
 
 func SetupRoutes(app *fiber.App, authHandler *handler.AuthHandler, categoryHandler *handler.CategoryHandler, productHandler *handler.ProductHandler, addressHandler *handler.AddressHandler, cartHandler *handler.CartHandler, checkoutHandler *handler.CheckoutHandler, orderHandler *handler.OrderHandler) {
+	app.Get("/swagger/*", fiberSwagger.HandlerDefault)
+
 	api := app.Group("/api/v1")
 
 	auth := api.Group("/auth")

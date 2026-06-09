@@ -4,6 +4,7 @@ import (
 	"strconv"
 
 	"github.com/ardhisparahita/ecommerce-api/internal/dto/request"
+	_ "github.com/ardhisparahita/ecommerce-api/internal/dto/response"
 	"github.com/ardhisparahita/ecommerce-api/internal/service"
 	"github.com/ardhisparahita/ecommerce-api/pkg/utils"
 	"github.com/gofiber/fiber/v2"
@@ -17,6 +18,22 @@ func NewCartHandler(service service.CartService) *CartHandler {
 	return &CartHandler{Service: service}
 }
 
+// AddToCart godoc
+//
+// @Summary Add product to cart
+// @Description Add a product to shopping cart
+// @Tags Carts
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param request body request.AddToCartRequest true "Add To Cart Request"
+// @Success 201 {object} response.CartSwaggerResponse
+// @Failure 400 {object} response.ErrorSwaggerResponse
+// @Failure 401 {object} response.ErrorSwaggerResponse
+// @Failure 404 {object} response.ErrorSwaggerResponse
+// @Failure 422 {object} response.ErrorSwaggerResponse
+// @Failure 500 {object} response.ErrorSwaggerResponse
+// @Router /carts [post]
 func (h *CartHandler) AddToCart(c *fiber.Ctx) error {
 	var req request.AddToCartRequest
 
@@ -43,6 +60,17 @@ func (h *CartHandler) AddToCart(c *fiber.Ctx) error {
 	)
 }
 
+// FindAll godoc
+//
+// @Summary Get cart items
+// @Description Get all cart items of current user
+// @Tags Carts
+// @Security BearerAuth
+// @Produce json
+// @Success 200 {object} response.CartListSwaggerResponse
+// @Failure 401 {object} response.ErrorSwaggerResponse
+// @Failure 500 {object} response.ErrorSwaggerResponse
+// @Router /carts [get]
 func (h *CartHandler) FindAll(c *fiber.Ctx) error {
 	userID := utils.GetUserID(c)
 
@@ -59,6 +87,23 @@ func (h *CartHandler) FindAll(c *fiber.Ctx) error {
 	)
 }
 
+// Update godoc
+//
+// @Summary Update cart quantity
+// @Description Update quantity of cart item
+// @Tags Carts
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param id path int true "Cart ID"
+// @Param request body request.UpdateCartRequest true "Update Cart Request"
+// @Success 200 {object} response.CartSwaggerResponse
+// @Failure 400 {object} response.ErrorSwaggerResponse
+// @Failure 401 {object} response.ErrorSwaggerResponse
+// @Failure 404 {object} response.ErrorSwaggerResponse
+// @Failure 422 {object} response.ErrorSwaggerResponse
+// @Failure 500 {object} response.ErrorSwaggerResponse
+// @Router /carts/{id} [put]
 func (h *CartHandler) Update(c *fiber.Ctx) error {
 	id, err := strconv.ParseUint(c.Params("id"), 10, 64)
 	if err != nil {
@@ -90,6 +135,19 @@ func (h *CartHandler) Update(c *fiber.Ctx) error {
 	)
 }
 
+// Delete godoc
+//
+// @Summary Delete cart item
+// @Description Remove item from cart
+// @Tags Carts
+// @Security BearerAuth
+// @Produce json
+// @Param id path int true "Cart ID"
+// @Success 200 {object} response.MessageSwaggerResponse
+// @Failure 401 {object} response.ErrorSwaggerResponse
+// @Failure 404 {object} response.ErrorSwaggerResponse
+// @Failure 500 {object} response.ErrorSwaggerResponse
+// @Router /carts/{id} [delete]
 func (h *CartHandler) Delete(c *fiber.Ctx) error {
 	id, err := strconv.ParseUint(c.Params("id"), 10, 64)
 	if err != nil {

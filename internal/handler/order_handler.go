@@ -3,6 +3,7 @@ package handler
 import (
 	"strconv"
 
+	_ "github.com/ardhisparahita/ecommerce-api/internal/dto/response"
 	"github.com/ardhisparahita/ecommerce-api/internal/service"
 	"github.com/ardhisparahita/ecommerce-api/pkg/utils"
 	"github.com/gofiber/fiber/v2"
@@ -16,6 +17,17 @@ func NewOrderHandler(service service.OrderService) *OrderHandler {
 	return &OrderHandler{Service: service}
 }
 
+// FindAll godoc
+//
+// @Summary Get user orders
+// @Description Get all orders owned by authenticated user
+// @Tags Orders
+// @Security BearerAuth
+// @Produce json
+// @Success 200 {object} response.OrderListSwaggerResponse
+// @Failure 401 {object} response.ErrorSwaggerResponse
+// @Failure 500 {object} response.ErrorSwaggerResponse
+// @Router /orders [get]
 func (h *OrderHandler) FindAll(c *fiber.Ctx) error {
 	userID := utils.GetUserID(c)
 
@@ -32,6 +44,19 @@ func (h *OrderHandler) FindAll(c *fiber.Ctx) error {
 	)
 }
 
+// FindByID godoc
+//
+// @Summary Get order detail
+// @Description Get order detail by id
+// @Tags Orders
+// @Security BearerAuth
+// @Produce json
+// @Param id path int true "Order ID"
+// @Success 200 {object} response.OrderSwaggerResponse
+// @Failure 401 {object} response.ErrorSwaggerResponse
+// @Failure 404 {object} response.ErrorSwaggerResponse
+// @Failure 500 {object} response.ErrorSwaggerResponse
+// @Router /orders/{id} [get]
 func (h *OrderHandler) FindByID(c *fiber.Ctx) error {
 	id, err := strconv.ParseUint(c.Params("id"), 10, 64)
 	if err != nil {
@@ -53,6 +78,19 @@ func (h *OrderHandler) FindByID(c *fiber.Ctx) error {
 	)
 }
 
+// Cancel godoc
+//
+// @Summary Cancel order
+// @Description Cancel pending order
+// @Tags Orders
+// @Security BearerAuth
+// @Produce json
+// @Param id path int true "Order ID"
+// @Success 200 {object} response.MessageSwaggerResponse
+// @Failure 400 {object} response.ErrorSwaggerResponse
+// @Failure 404 {object} response.ErrorSwaggerResponse
+// @Failure 500 {object} response.ErrorSwaggerResponse
+// @Router /orders/{id}/cancel [patch]
 func (h *OrderHandler) Cancel(c *fiber.Ctx) error {
 	id, err := strconv.ParseUint(c.Params("id"), 10, 64)
 	if err != nil {
@@ -74,6 +112,19 @@ func (h *OrderHandler) Cancel(c *fiber.Ctx) error {
 	)
 }
 
+// MarkAsShipped godoc
+//
+// @Summary Mark order as shipped
+// @Description Change order status to SHIPPED
+// @Tags Orders
+// @Security BearerAuth
+// @Produce json
+// @Param id path int true "Order ID"
+// @Success 200 {object} response.MessageSwaggerResponse
+// @Failure 400 {object} response.ErrorSwaggerResponse
+// @Failure 404 {object} response.ErrorSwaggerResponse
+// @Failure 500 {object} response.ErrorSwaggerResponse
+// @Router /orders/{id}/ship [patch]
 func (h *OrderHandler) MarkAsShipped(c *fiber.Ctx) error {
 	id, err := strconv.ParseUint(c.Params("id"), 10, 64)
 	if err != nil {
@@ -94,6 +145,19 @@ func (h *OrderHandler) MarkAsShipped(c *fiber.Ctx) error {
 
 }
 
+// MarkAsShipped godoc
+//
+// @Summary Mark order as shipped
+// @Description Change order status to SHIPPED
+// @Tags Orders
+// @Security BearerAuth
+// @Produce json
+// @Param id path int true "Order ID"
+// @Success 200 {object} response.MessageSwaggerResponse
+// @Failure 400 {object} response.ErrorSwaggerResponse
+// @Failure 404 {object} response.ErrorSwaggerResponse
+// @Failure 500 {object} response.ErrorSwaggerResponse
+// @Router /orders/{id}/ship [patch]
 func (h *OrderHandler) MarkAsCompleted(c *fiber.Ctx) error {
 	id, err := strconv.ParseUint(c.Params("id"), 10, 64)
 	if err != nil {
@@ -113,6 +177,19 @@ func (h *OrderHandler) MarkAsCompleted(c *fiber.Ctx) error {
 	)
 }
 
+// MarkAsPaid godoc
+//
+// @Summary Mark order as paid
+// @Description Change order status to PAID
+// @Tags Orders
+// @Security BearerAuth
+// @Produce json
+// @Param id path int true "Order ID"
+// @Success 200 {object} response.MessageSwaggerResponse
+// @Failure 400 {object} response.ErrorSwaggerResponse
+// @Failure 404 {object} response.ErrorSwaggerResponse
+// @Failure 500 {object} response.ErrorSwaggerResponse
+// @Router /orders/{id}/pay [patch]
 func (h *OrderHandler) MarkAsPaid(c *fiber.Ctx) error {
 	id, err := strconv.ParseUint(c.Params("id"), 10, 64)
 	if err != nil {
@@ -132,6 +209,19 @@ func (h *OrderHandler) MarkAsPaid(c *fiber.Ctx) error {
 	)
 }
 
+// MarkAsFailed godoc
+//
+// @Summary Mark order as failed
+// @Description Change order status to FAILED
+// @Tags Orders
+// @Security BearerAuth
+// @Produce json
+// @Param id path int true "Order ID"
+// @Success 200 {object} response.MessageSwaggerResponse
+// @Failure 400 {object} response.ErrorSwaggerResponse
+// @Failure 404 {object} response.ErrorSwaggerResponse
+// @Failure 500 {object} response.ErrorSwaggerResponse
+// @Router /orders/{id}/fail [patch]
 func (h *OrderHandler) MarkAsFailed(c *fiber.Ctx) error {
 	id, err := strconv.ParseUint(c.Params("id"), 10, 64)
 	if err != nil {

@@ -42,14 +42,17 @@ func (h *AuthHandler) Register(c *fiber.Ctx) error {
 		return utils.ResponseError(c, err)
 	}
 
-	err := h.Service.Register(c.Context(), req)
+	data, err := h.Service.Register(c.Context(), req)
 	if err != nil {
 		return err
 	}
 
-	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
-		"Message": "Register Success",
-	})
+	return utils.ResponseSuccess(
+		c,
+		fiber.StatusCreated,
+		"register success",
+		data,
+	)
 }
 
 // Login godoc
@@ -86,5 +89,105 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 		fiber.StatusOK,
 		"login success",
 		data,
+	)
+}
+
+// GetProfile godoc
+//
+// @Summary Get user profile
+// @Description Get current logged in user profile
+// @Tags Users
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {object} response.UserSwaggerResponse
+// @Failure 401 {object} response.ErrorSwaggerResponse
+// @Failure 404 {object} response.ErrorSwaggerResponse
+// @Failure 500 {object} response.ErrorSwaggerResponse
+// @Router /users/profile [get]
+func (h *AuthHandler) GetProfile(c *fiber.Ctx) error {
+	userID := utils.GetUserID(c)
+
+	data, err := h.Service.GetProfile(c.UserContext(), userID)
+	if err != nil {
+		return err
+	}
+
+	return utils.ResponseSuccess(
+		c,
+		fiber.StatusOK,
+		"get profile success",
+		data,
+	)
+}
+
+// UpdateProfile godoc
+//
+// @Summary Update user profile
+// @Description Update current logged in user profile
+// @Tags Users
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param request body request.UpdateProfileRequest true "Update Profile Request"
+// @Success 200 {object} response.UserSwaggerResponse
+// @Failure 400 {object} response.ErrorSwaggerResponse
+// @Failure 401 {object} response.ErrorSwaggerResponse
+// @Failure 404 {object} response.ErrorSwaggerResponse
+// @Failure 422 {object} response.ErrorSwaggerResponse
+// @Failure 500 {object} response.ErrorSwaggerResponse
+// @Router /users/profile [put]
+func (h *AuthHandler) UpdateProfile(c *fiber.Ctx) error {
+	var req request.UpdateProfileRequest
+
+	if err := c.BodyParser(&req); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	if err := utils.ValidationStruct(req); err != nil {
+		return utils.ResponseError(c, err)
+	}
+
+	userID := utils.GetUserID(c)
+
+	data, err := h.Service.UpdateProfile(c.UserContext(), userID, req)
+	if err != nil {
+		return err
+	}
+
+	return utils.ResponseSuccess(
+		c,
+		fiber.StatusOK,
+		"profile updated successfully",
+		data,
+	)
+}
+
+func (h *AuthHandler) ChangePassword(c *fiber.Ctx) error {
+	var req request.ChangePasswordRequest
+
+	if err := c.BodyParser(&req); err != nil {
+		return fiber.NewError(
+			fiber.StatusBadRequest,
+			err.Error(),
+		)
+	}
+
+	if err := utils.ValidationStruct(req); err != nil {
+		return utils.ResponseError(c, err)
+	}
+
+	userID := utils.GetUserID(c)
+
+	err := h.Service.ChangePassword(c.UserContext(), userID, req)
+	if err != nil {
+		return err
+	}
+
+	return utils.ResponseSuccess(
+		c,
+		fiber.StatusOK,
+		"password changed successfully",
+		nil,
 	)
 }

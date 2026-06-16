@@ -14,25 +14,39 @@ func JWT() fiber.Handler {
 		authHeader := c.Get("Authorization")
 
 		if authHeader == "" {
-			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-				"message": "unauthorized",
-			})
+			return utils.Unauthorized("missing token")
 		}
 
 		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
 
 		token, err := utils.ValidateToken(tokenString, config.Get("JWT_SECRET"))
-		if err != nil {
-			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-				"message": "invalid token",
-			})
+		if err != nil || !token.Valid {
+			return utils.Unauthorized("invalid token")
 		}
 
-		claims := token.Claims.(jwt.MapClaims)
+		claims, ok := token.Claims.(jwt.MapClaims)
+		if !ok {
+			return utils.Unauthorized("invalid token claims")
+		}
+
+		userIDFloat, ok := claims["user_id"].(float64)
+		if !ok {
+			return utils.Unauthorized("invalid user id")
+		}
+
+		role, ok := claims["role"].(string)
+		if !ok {
+			return utils.Unauthorized("invalid role")
+		}
 
 		c.Locals(
 			"user_id",
-			uint64(claims["user_id"].(float64)),
+			uint64(userIDFloat),
+		)
+
+		c.Locals(
+			"role",
+			role,
 		)
 
 		return c.Next()

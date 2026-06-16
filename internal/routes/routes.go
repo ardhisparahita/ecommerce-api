@@ -13,20 +13,24 @@ func SetupRoutes(app *fiber.App, authHandler *handler.AuthHandler, categoryHandl
 	api := app.Group("/api/v1")
 
 	auth := api.Group("/auth")
-
 	auth.Post("/register", authHandler.Register)
 	auth.Post("/login", authHandler.Login)
 
+	users := api.Group("/users", middleware.JWT())
+	users.Get("/profile", authHandler.GetProfile)
+	users.Put("/profile", authHandler.UpdateProfile)
+	users.Patch("/change-password", authHandler.ChangePassword)
+
 	category := api.Group("/categories", middleware.JWT())
-	category.Post("/", categoryHandler.Create)
+	category.Post("/", middleware.AdminOnly(), categoryHandler.Create)
 	category.Get("/", categoryHandler.FindAll)
 
 	product := api.Group("/products", middleware.JWT())
-	product.Post("/", productHandler.Create)
+	product.Post("/", middleware.AdminOnly(), productHandler.Create)
 	product.Get("/", productHandler.FindAll)
 	product.Get("/:id", productHandler.FindByID)
-	product.Put("/:id", productHandler.Update)
-	product.Delete("/:id", productHandler.Delete)
+	product.Put("/:id", middleware.AdminOnly(), productHandler.Update)
+	product.Delete("/:id", middleware.AdminOnly(), productHandler.Delete)
 
 	address := api.Group("/addresses", middleware.JWT())
 	address.Post("/", addressHandler.Create)
@@ -47,10 +51,10 @@ func SetupRoutes(app *fiber.App, authHandler *handler.AuthHandler, categoryHandl
 	order := api.Group("/orders", middleware.JWT())
 	order.Get("/", orderHandler.FindAll)
 	order.Get("/:id", orderHandler.FindByID)
-	order.Patch("/:id/pay", orderHandler.MarkAsPaid)
+	order.Patch("/:id/pay", middleware.AdminOnly(), orderHandler.MarkAsPaid)
 	order.Patch("/:id/fail", orderHandler.MarkAsFailed)
 	order.Patch("/:id/cancel", orderHandler.Cancel)
-	order.Patch("/:id/ship", orderHandler.MarkAsShipped)
+	order.Patch("/:id/ship", middleware.AdminOnly(), orderHandler.MarkAsShipped)
 	order.Patch("/:id/complete", orderHandler.MarkAsCompleted)
 
 }

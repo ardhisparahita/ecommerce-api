@@ -30,7 +30,7 @@ func (s *AuthServiceImpl) Register(ctx context.Context, req request.RegisterRequ
 		return nil, utils.BadRequest("email already registered")
 	}
 
-	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+	if !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, err
 	}
 

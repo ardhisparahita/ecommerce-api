@@ -26,26 +26,51 @@ func (r *ProductRepositoryImpl) FindAll(ctx context.Context, req request.Product
 	var products []domain.Product
 	var totalRows int64
 
-	db := r.DB.WithContext(ctx).Model(&domain.Product{}).Preload("Category")
+	query := r.DB.WithContext(ctx).Model(&domain.Product{}).Preload("Category")
 
 	if req.Search != "" {
-		db = db.Where("name LIKE ?", "%"+req.Search+"%")
+		query = query.Where("name LIKE ?", "%"+req.Search+"%")
 	}
 
 	if req.CategoryID > 0 {
-		db = db.Where("category_id = ?", req.CategoryID)
+		query = query.Where("category_id = ?", req.CategoryID)
 	}
 
-	if err := db.Count(&totalRows).Error; err != nil {
+	if req.MinPrice > 0 {
+		query = query.Where("price >= ?", req.MinPrice)
+	}
+
+	if req.MaxPrice > 0 {
+		query = query.Where("price <= ?", req.MaxPrice)
+	}
+
+	if err := query.Count(&totalRows).Error; err != nil {
 		return nil, 0, err
+	}
+
+	allowedSort := map[string]bool{
+		"name":       true,
+		"price":      true,
+		"stock":      true,
+		"created_at": true,
+	}
+
+	if req.SortBy == "" || allowedSort[req.SortBy] {
+		req.SortBy = "created_at"
+	}
+
+	if req.Order != "asc" && req.Order != "desc" {
+		req.Order = "desc"
 	}
 
 	offset := (req.Page - 1) * req.Limit
 
-	err := db.Offset(offset).Limit(req.Limit).Find(&products).Error
-	if err != nil {
-		return nil, 0, err
-	}
+	err := query.
+		Order(req.SortBy + " " + req.Order).
+		Limit(req.Limit).
+		Offset(offset).
+		Find(&products).
+		Error
 
 	return products, totalRows, err
 }

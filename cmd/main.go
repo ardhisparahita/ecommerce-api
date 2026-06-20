@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"os"
 
 	_ "github.com/ardhisparahita/ecommerce-api/docs"
 	"github.com/ardhisparahita/ecommerce-api/internal/handler"
@@ -44,6 +45,16 @@ import (
 // @tag.name Orders
 // @tag.description Order APIs
 func main() {
+
+	err := os.MkdirAll(
+		"./uploads/products",
+		os.ModePerm,
+	)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	config.LoadEnv()
 
 	db, err := database.Connect()
@@ -88,6 +99,11 @@ func main() {
 
 	orderService := service.NewOrderService(db, orderRepo, productRepo, paymentRepo)
 	orderHandler := handler.NewOrderHandler(orderService)
+
+	app.Static(
+		"/uploads",
+		"./uploads",
+	)
 
 	routes.SetupRoutes(app, userHandler, categoryHandler, productHandler, addressHandler, cartHandler, checkoutHandler, orderHandler)
 

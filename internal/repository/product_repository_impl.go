@@ -79,6 +79,9 @@ func (r *ProductRepositoryImpl) FindByID(ctx context.Context, id uint64) (*domai
 	var product domain.Product
 
 	err := r.DB.WithContext(ctx).Preload("Category").First(&product, id).Error
+	if err != nil {
+		return nil, err
+	}
 
 	return &product, err
 }

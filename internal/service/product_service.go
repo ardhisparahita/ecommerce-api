@@ -13,4 +13,5 @@ type ProductService interface {
 	FindByID(ctx context.Context, id uint64) (*response.ProductResponse, error)
 	Update(ctx context.Context, id uint64, req request.UpdateProductRequest) (*response.ProductResponse, error)
 	Delete(ctx context.Context, id uint64) error
+	UploadImage(ctx context.Context, id uint64, imageURL string) (*response.ProductResponse, error)
 }

@@ -1,7 +1,9 @@
 package handler
 
 import (
+	"fmt"
 	"strconv"
+	"time"
 
 	"github.com/ardhisparahita/ecommerce-api/internal/dto/request"
 	_ "github.com/ardhisparahita/ecommerce-api/internal/dto/response"
@@ -205,5 +207,40 @@ func (h *ProductHandler) Delete(c *fiber.Ctx) error {
 		fiber.StatusOK,
 		"product deleted",
 		nil,
+	)
+}
+
+func (h *ProductHandler) UploadImage(c *fiber.Ctx) error {
+	id, err := strconv.ParseUint(c.Params("id"), 10, 64)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, "invalid category id")
+	}
+
+	file, err := c.FormFile("image")
+	if err != nil {
+		return fiber.NewError(
+			fiber.StatusBadRequest,
+			"image is required",
+		)
+	}
+
+	fileName := fmt.Sprintf("%d_%s", time.Now(), file.Filename)
+	path := "./uploads/products/" + fileName
+
+	if err := c.SaveFile(file, path); err != nil {
+		return err
+	}
+
+	data, err := h.Service.UploadImage(c.UserContext(), id, "/uploads/products"+fileName)
+
+	if err != nil {
+		return err
+	}
+
+	return utils.ResponseSuccess(
+		c,
+		fiber.StatusOK,
+		"image uploaded successfully",
+		data,
 	)
 }

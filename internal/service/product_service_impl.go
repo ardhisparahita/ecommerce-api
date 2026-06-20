@@ -31,15 +31,18 @@ func (s *ProductServiceImpl) Create(ctx context.Context, req request.CreateProdu
 		Description: req.Description,
 		Price:       req.Price,
 		Stock:       req.Stock,
-		ImageURL:    req.ImageURL,
 	}
 
-	err := s.Repo.Create(ctx, &product)
+	if err := s.Repo.Create(ctx, &product); err != nil {
+		return nil, err
+	}
+
+	createdProduct, err := s.Repo.FindByID(ctx, product.ID)
 	if err != nil {
 		return nil, err
 	}
 
-	return mapper.ToProductResponse(&product), nil
+	return mapper.ToProductResponse(createdProduct), nil
 }
 
 func (s *ProductServiceImpl) FindAll(ctx context.Context, req request.ProductQueryRequest) (*response.ProductListResponse, error) {
@@ -94,7 +97,6 @@ func (s *ProductServiceImpl) Update(ctx context.Context, id uint64, req request.
 	product.Description = req.Description
 	product.Price = req.Price
 	product.Stock = req.Stock
-	product.ImageURL = req.ImageURL
 
 	if err := s.Repo.Update(ctx, product); err != nil {
 		return nil, err
@@ -114,4 +116,22 @@ func (s *ProductServiceImpl) Delete(ctx context.Context, id uint64) error {
 	}
 
 	return s.Repo.Delete(ctx, id)
+}
+
+func (s *ProductServiceImpl) UploadImage(ctx context.Context, id uint64, imageURL string) (*response.ProductResponse, error) {
+	product, err := s.Repo.FindByID(ctx, id)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, utils.NotFound("product not found")
+		}
+		return nil, err
+	}
+
+	product.ImageURL = imageURL
+
+	if err := s.Repo.Update(ctx, product); err != nil {
+		return nil, err
+	}
+
+	return mapper.ToProductResponse(product), nil
 }

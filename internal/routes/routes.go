@@ -33,6 +33,7 @@ func SetupRoutes(app *fiber.App, authHandler *handler.AuthHandler, categoryHandl
 	product.Get("/:id", productHandler.FindByID)
 	product.Put("/:id", middleware.AdminOnly(), productHandler.Update)
 	product.Delete("/:id", middleware.AdminOnly(), productHandler.Delete)
+	product.Post("/:id/image", middleware.AdminOnly(), productHandler.UploadImage)
 
 	address := api.Group("/addresses", middleware.JWT())
 	address.Post("/", addressHandler.Create)

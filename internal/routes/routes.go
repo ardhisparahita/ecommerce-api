@@ -22,8 +22,10 @@ func SetupRoutes(app *fiber.App, authHandler *handler.AuthHandler, categoryHandl
 	users.Patch("/change-password", authHandler.ChangePassword)
 
 	category := api.Group("/categories", middleware.JWT())
-	category.Post("/", middleware.AdminOnly(), categoryHandler.Create)
 	category.Get("/", categoryHandler.FindAll)
+	category.Get("/:id", categoryHandler.FindByID)
+	category.Post("/", middleware.AdminOnly(), categoryHandler.Create)
+	category.Put("/:id", middleware.AdminOnly(), categoryHandler.Update)
 
 	product := api.Group("/products", middleware.JWT())
 	product.Post("/", middleware.AdminOnly(), productHandler.Create)

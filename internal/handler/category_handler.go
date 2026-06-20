@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"strconv"
+
 	"github.com/ardhisparahita/ecommerce-api/internal/dto/request"
 	_ "github.com/ardhisparahita/ecommerce-api/internal/dto/response"
 	"github.com/ardhisparahita/ecommerce-api/internal/service"
@@ -82,4 +84,79 @@ func (h *CategoryHandler) FindAll(c *fiber.Ctx) error {
 		"get all categories",
 		data,
 	)
+}
+
+// Update godoc
+//
+// @Summary Update category
+// @Description Update category data
+// @Tags Categories
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param id path int true "Category ID"
+// @Param request body request.CategoryUpdateRequest true "Category Request"
+// @Success 200 {object} response.CategorySwaggerResponse
+// @Failure 400 {object} response.ErrorSwaggerResponse
+// @Failure 404 {object} response.ErrorSwaggerResponse
+// @Failure 500 {object} response.ErrorSwaggerResponse
+// @Router /categories/{id} [put]
+func (h *CategoryHandler) Update(c *fiber.Ctx) error {
+	id, err := strconv.ParseUint(c.Params("id"), 10, 64)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, "invalid category id")
+	}
+
+	var req request.UpdateCategoryRequest
+	if err := c.BodyParser(&req); err != nil {
+		return err
+	}
+
+	if err := utils.ValidationStruct(req); err != nil {
+		return utils.ResponseError(c, err)
+	}
+
+	data, err := h.Service.Update(c.UserContext(), id, req)
+	if err != nil {
+		return err
+	}
+
+	return utils.ResponseSuccess(
+		c,
+		fiber.StatusOK,
+		"category updated successfully",
+		data,
+	)
+}
+
+// FindByID godoc
+//
+// @Summary Get category by ID
+// @Description Get category detail
+// @Tags Categories
+// @Produce json
+// @Security BearerAuth
+// @Param id path int true "Category ID"
+// @Success 200 {object} response.CategorySwaggerResponse
+// @Failure 404 {object} response.ErrorSwaggerResponse
+// @Failure 500 {object} response.ErrorSwaggerResponse
+// @Router /categories/{id} [get]
+func (h *CategoryHandler) FindByID(c *fiber.Ctx) error {
+	id, err := strconv.ParseUint(c.Params("id"), 10, 64)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, "invalid category id")
+	}
+
+	data, err := h.Service.FindByID(c.UserContext(), id)
+	if err != nil {
+		return err
+	}
+
+	return utils.ResponseSuccess(
+		c,
+		fiber.StatusOK,
+		"success",
+		data,
+	)
+
 }

@@ -2,12 +2,15 @@ package service
 
 import (
 	"context"
+	"errors"
 
 	"github.com/ardhisparahita/ecommerce-api/internal/domain"
 	"github.com/ardhisparahita/ecommerce-api/internal/dto/request"
 	"github.com/ardhisparahita/ecommerce-api/internal/dto/response"
 	"github.com/ardhisparahita/ecommerce-api/internal/mapper"
 	"github.com/ardhisparahita/ecommerce-api/internal/repository"
+	"github.com/ardhisparahita/ecommerce-api/pkg/utils"
+	"gorm.io/gorm"
 )
 
 type CategoryServiceImpl struct {
@@ -39,4 +42,41 @@ func (s *CategoryServiceImpl) FindAll(ctx context.Context) ([]response.CategoryR
 	}
 
 	return mapper.ToCategoryResponses(categories), nil
+}
+
+func (s *CategoryServiceImpl) Update(ctx context.Context, id uint64, req request.UpdateCategoryRequest) (*response.CategoryResponse, error) {
+	category, err := s.Repo.FindByID(ctx, id)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, utils.NotFound("category not found")
+		}
+		return nil, err
+	}
+
+	category.Name = req.Name
+
+	if err := s.Repo.Update(ctx, category); err != nil {
+		return nil, err
+	}
+
+	return &response.CategoryResponse{
+		ID:   category.ID,
+		Name: category.Name,
+	}, nil
+
+}
+
+func (s *CategoryServiceImpl) FindByID(ctx context.Context, id uint64) (*response.CategoryResponse, error) {
+	category, err := s.Repo.FindByID(ctx, id)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, utils.NotFound("category not found")
+		}
+		return nil, err
+	}
+
+	return &response.CategoryResponse{
+		ID:   category.ID,
+		Name: category.Name,
+	}, nil
 }

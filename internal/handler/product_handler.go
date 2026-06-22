@@ -224,7 +224,10 @@ func (h *ProductHandler) UploadImage(c *fiber.Ctx) error {
 		)
 	}
 
-	fileName := fmt.Sprintf("%d_%s", time.Now(), file.Filename)
+	fileName := fmt.Sprintf("%s_%s",
+		time.Now().Format("20060102150405"),
+		file.Filename,
+	)
 	path := "./uploads/products/" + fileName
 
 	if err := c.SaveFile(file, path); err != nil {

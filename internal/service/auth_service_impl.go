@@ -84,7 +84,7 @@ func (s *AuthServiceImpl) Login(ctx context.Context, req request.LoginRequest) (
 }
 
 func (s *AuthServiceImpl) GetProfile(ctx context.Context, userID uint64) (*response.UserResponse, error) {
-	user, err := s.Repo.FindById(ctx, userID)
+	user, err := s.Repo.FindByID(ctx, userID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, utils.NotFound("user not found")
@@ -100,7 +100,7 @@ func (s *AuthServiceImpl) GetProfile(ctx context.Context, userID uint64) (*respo
 }
 
 func (s *AuthServiceImpl) UpdateProfile(ctx context.Context, userID uint64, req request.UpdateProfileRequest) (*response.UserResponse, error) {
-	user, err := s.Repo.FindById(ctx, userID)
+	user, err := s.Repo.FindByID(ctx, userID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, utils.NotFound("user not found")
@@ -121,7 +121,7 @@ func (s *AuthServiceImpl) UpdateProfile(ctx context.Context, userID uint64, req 
 }
 
 func (s *AuthServiceImpl) ChangePassword(ctx context.Context, UserID uint64, req request.ChangePasswordRequest) error {
-	user, err := s.Repo.FindById(ctx, UserID)
+	user, err := s.Repo.FindByID(ctx, UserID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return utils.NotFound("user not found")

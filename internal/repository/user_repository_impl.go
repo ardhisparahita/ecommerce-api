@@ -32,7 +32,7 @@ func (r *UserRepositoryImpl) FindByEmail(ctx context.Context, email string) (*do
 	return &user, nil
 }
 
-func (r *UserRepositoryImpl) FindById(ctx context.Context, id uint64) (*domain.User, error) {
+func (r *UserRepositoryImpl) FindByID(ctx context.Context, id uint64) (*domain.User, error) {
 	var user domain.User
 
 	err := r.DB.WithContext(ctx).First(&user, id).Error

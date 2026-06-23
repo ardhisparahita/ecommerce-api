@@ -341,7 +341,7 @@ func TestUploadImageNotFound(t *testing.T) {
 	repo.AssertExpectations(t)
 }
 
-func TestFindAllSuccess(t *testing.T) {
+func TestFindAllProductSuccess(t *testing.T) {
 	repo := new(MockProductRepository)
 
 	service := ProductServiceImpl{

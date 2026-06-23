@@ -10,6 +10,17 @@ definitions:
     - product_id
     - quantity
     type: object
+  github_com_ardhisparahita_ecommerce-api_internal_dto_request.ChangePasswordRequest:
+    properties:
+      new_password:
+        minLength: 8
+        type: string
+      old_password:
+        type: string
+    required:
+    - new_password
+    - old_password
+    type: object
   github_com_ardhisparahita_ecommerce-api_internal_dto_request.CheckoutRequest:
     properties:
       address_id:
@@ -54,8 +65,6 @@ definitions:
         type: integer
       description:
         type: string
-      image_url:
-        type: string
       name:
         maxLength: 255
         minLength: 3
@@ -67,7 +76,6 @@ definitions:
     required:
     - category_id
     - description
-    - image_url
     - name
     - price
     - stock
@@ -124,13 +132,20 @@ definitions:
     required:
     - quantity
     type: object
+  github_com_ardhisparahita_ecommerce-api_internal_dto_request.UpdateCategoryRequest:
+    properties:
+      name:
+        maxLength: 100
+        minLength: 3
+        type: string
+    required:
+    - name
+    type: object
   github_com_ardhisparahita_ecommerce-api_internal_dto_request.UpdateProductRequest:
     properties:
       category_id:
         type: integer
       description:
-        type: string
-      image_url:
         type: string
       name:
         maxLength: 255
@@ -144,9 +159,17 @@ definitions:
     required:
     - category_id
     - description
-    - image_url
     - name
     - price
+    type: object
+  github_com_ardhisparahita_ecommerce-api_internal_dto_request.UpdateProfileRequest:
+    properties:
+      name:
+        maxLength: 100
+        minLength: 3
+        type: string
+    required:
+    - name
     type: object
   github_com_ardhisparahita_ecommerce-api_internal_dto_response.AddressListSwaggerResponse:
     properties:
@@ -462,6 +485,28 @@ definitions:
     properties:
       code:
         type: integer
+      message:
+        type: string
+      status:
+        type: string
+    type: object
+  github_com_ardhisparahita_ecommerce-api_internal_dto_response.UserResponse:
+    properties:
+      email:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      role:
+        type: string
+    type: object
+  github_com_ardhisparahita_ecommerce-api_internal_dto_response.UserSwaggerResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/github_com_ardhisparahita_ecommerce-api_internal_dto_response.UserResponse'
       message:
         type: string
       status:
@@ -926,6 +971,75 @@ paths:
       summary: Create category
       tags:
       - Categories
+  /categories/{id}:
+    get:
+      description: Get category detail
+      parameters:
+      - description: Category ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_ardhisparahita_ecommerce-api_internal_dto_response.CategorySwaggerResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_ardhisparahita_ecommerce-api_internal_dto_response.ErrorSwaggerResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_ardhisparahita_ecommerce-api_internal_dto_response.ErrorSwaggerResponse'
+      security:
+      - BearerAuth: []
+      summary: Get category by ID
+      tags:
+      - Categories
+    put:
+      consumes:
+      - application/json
+      description: Update category data
+      parameters:
+      - description: Category ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Category Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_ardhisparahita_ecommerce-api_internal_dto_request.UpdateCategoryRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_ardhisparahita_ecommerce-api_internal_dto_response.CategorySwaggerResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_ardhisparahita_ecommerce-api_internal_dto_response.ErrorSwaggerResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_ardhisparahita_ecommerce-api_internal_dto_response.ErrorSwaggerResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_ardhisparahita_ecommerce-api_internal_dto_response.ErrorSwaggerResponse'
+      security:
+      - BearerAuth: []
+      summary: Update category
+      tags:
+      - Categories
   /checkouts:
     post:
       consumes:
@@ -1350,6 +1464,118 @@ paths:
       summary: Update product
       tags:
       - Products
+  /users/change-password:
+    put:
+      consumes:
+      - application/json
+      description: Change current user password
+      parameters:
+      - description: Change Password Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_ardhisparahita_ecommerce-api_internal_dto_request.ChangePasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_ardhisparahita_ecommerce-api_internal_dto_response.MessageSwaggerResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_ardhisparahita_ecommerce-api_internal_dto_response.ErrorSwaggerResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_ardhisparahita_ecommerce-api_internal_dto_response.ErrorSwaggerResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/github_com_ardhisparahita_ecommerce-api_internal_dto_response.ErrorSwaggerResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_ardhisparahita_ecommerce-api_internal_dto_response.ErrorSwaggerResponse'
+      security:
+      - BearerAuth: []
+      summary: Change password
+      tags:
+      - Users
+  /users/profile:
+    get:
+      consumes:
+      - application/json
+      description: Get current logged in user profile
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_ardhisparahita_ecommerce-api_internal_dto_response.UserSwaggerResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_ardhisparahita_ecommerce-api_internal_dto_response.ErrorSwaggerResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_ardhisparahita_ecommerce-api_internal_dto_response.ErrorSwaggerResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_ardhisparahita_ecommerce-api_internal_dto_response.ErrorSwaggerResponse'
+      security:
+      - BearerAuth: []
+      summary: Get user profile
+      tags:
+      - Users
+    put:
+      consumes:
+      - application/json
+      description: Update current logged in user profile
+      parameters:
+      - description: Update Profile Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_ardhisparahita_ecommerce-api_internal_dto_request.UpdateProfileRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_ardhisparahita_ecommerce-api_internal_dto_response.UserSwaggerResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_ardhisparahita_ecommerce-api_internal_dto_response.ErrorSwaggerResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_ardhisparahita_ecommerce-api_internal_dto_response.ErrorSwaggerResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_ardhisparahita_ecommerce-api_internal_dto_response.ErrorSwaggerResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/github_com_ardhisparahita_ecommerce-api_internal_dto_response.ErrorSwaggerResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_ardhisparahita_ecommerce-api_internal_dto_response.ErrorSwaggerResponse'
+      security:
+      - BearerAuth: []
+      summary: Update user profile
+      tags:
+      - Users
 securityDefinitions:
   BearerAuth:
     in: header

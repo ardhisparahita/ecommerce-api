@@ -163,6 +163,21 @@ func (h *AuthHandler) UpdateProfile(c *fiber.Ctx) error {
 	)
 }
 
+// ChangePassword godoc
+//
+// @Summary Change password
+// @Description Change current user password
+// @Tags Users
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param request body request.ChangePasswordRequest true "Change Password Request"
+// @Success 200 {object} response.MessageSwaggerResponse
+// @Failure 400 {object} response.ErrorSwaggerResponse
+// @Failure 401 {object} response.ErrorSwaggerResponse
+// @Failure 422 {object} response.ErrorSwaggerResponse
+// @Failure 500 {object} response.ErrorSwaggerResponse
+// @Router /users/change-password [put]
 func (h *AuthHandler) ChangePassword(c *fiber.Ctx) error {
 	var req request.ChangePasswordRequest
 

@@ -95,7 +95,7 @@ func (h *CategoryHandler) FindAll(c *fiber.Ctx) error {
 // @Produce json
 // @Security BearerAuth
 // @Param id path int true "Category ID"
-// @Param request body request.CategoryUpdateRequest true "Category Request"
+// @Param request body request.UpdateCategoryRequest true "Category Request"
 // @Success 200 {object} response.CategorySwaggerResponse
 // @Failure 400 {object} response.ErrorSwaggerResponse
 // @Failure 404 {object} response.ErrorSwaggerResponse

@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"os"
+	"time"
 
 	_ "github.com/ardhisparahita/ecommerce-api/docs"
 	"github.com/ardhisparahita/ecommerce-api/internal/handler"
@@ -13,6 +14,7 @@ import (
 	"github.com/ardhisparahita/ecommerce-api/pkg/database"
 	"github.com/ardhisparahita/ecommerce-api/pkg/utils"
 	"github.com/gofiber/fiber/v2"
+	"gorm.io/gorm"
 )
 
 // @title Ecommerce API
@@ -44,70 +46,115 @@ import (
 
 // @tag.name Orders
 // @tag.description Order APIs
+
 func main() {
-
-	err := os.MkdirAll(
-		"./uploads/products",
-		os.ModePerm,
-	)
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	config.LoadEnv()
 
-	db, err := database.Connect()
-	if err != nil {
+	if err := os.MkdirAll("./uploads/products", os.ModePerm); err != nil {
 		log.Fatal(err)
 	}
 
-	_ = db
-
-	app := fiber.New(
-		fiber.Config{
-			ErrorHandler: utils.ErrorHandler,
-		},
+	var (
+		db  *gorm.DB
+		err error
 	)
 
+	const (
+		maxRetries = 60
+		retryDelay = 5 * time.Second
+	)
+
+	for i := 1; i <= maxRetries; i++ {
+
+		db, err = database.Connect()
+
+		if err == nil {
+
+			sqlDB, errPing := db.DB()
+			if errPing == nil {
+
+				if errPing = sqlDB.Ping(); errPing == nil {
+					log.Println("Database connected successfully")
+					break
+				}
+
+				err = errPing
+			}
+		}
+
+		log.Printf("Waiting for database... (%d/%d)", i, maxRetries)
+		log.Printf("Database Error: %v", err)
+
+		time.Sleep(retryDelay)
+	}
+
+	if err != nil {
+		log.Fatalf("Failed to connect database after %d attempts: %v", maxRetries, err)
+	}
+
+	app := fiber.New(fiber.Config{
+		ErrorHandler: utils.ErrorHandler,
+	})
+
 	userRepo := repository.NewUserRepository(db)
-	userService := service.NewAuthService(userRepo)
-	userHandler := handler.NewAuthHandler(userService)
-
 	categoryRepo := repository.NewCategoryRepository(db)
-	categoryService := service.NewCategoryService(categoryRepo)
-	categoryHandler := handler.NewCategoryHandler(categoryService)
-
 	productRepo := repository.NewProductRepository(db)
-	productService := service.NewProductService(productRepo)
-	productHandler := handler.NewProductHandler(productService)
-
 	addressRepo := repository.NewAddressRepository(db)
-	addressService := service.NewAddressService(addressRepo)
-	addressHandler := handler.NewAddressHandler(addressService)
-
 	cartRepo := repository.NewCartRepository(db)
-	cartService := service.NewCartService(cartRepo, productRepo)
-	cartHandler := handler.NewCartHandler(cartService)
-
 	orderRepo := repository.NewOrderRepository(db)
 	orderItemRepo := repository.NewOrderItemRepository(db)
 	paymentRepo := repository.NewPaymentRepository(db)
 
-	checkoutService := service.NewCheckoutService(db, cartRepo, productRepo, addressRepo, orderRepo, orderItemRepo, paymentRepo)
-	checkoutHandler := handler.NewCheckoutHandler(checkoutService)
+	userService := service.NewAuthService(userRepo)
+	categoryService := service.NewCategoryService(categoryRepo)
+	productService := service.NewProductService(productRepo)
+	addressService := service.NewAddressService(addressRepo)
+	cartService := service.NewCartService(cartRepo, productRepo)
 
-	orderService := service.NewOrderService(db, orderRepo, productRepo, paymentRepo)
+	checkoutService := service.NewCheckoutService(
+		db,
+		cartRepo,
+		productRepo,
+		addressRepo,
+		orderRepo,
+		orderItemRepo,
+		paymentRepo,
+	)
+
+	orderService := service.NewOrderService(
+		db,
+		orderRepo,
+		productRepo,
+		paymentRepo,
+	)
+
+	userHandler := handler.NewAuthHandler(userService)
+	categoryHandler := handler.NewCategoryHandler(categoryService)
+	productHandler := handler.NewProductHandler(productService)
+	addressHandler := handler.NewAddressHandler(addressService)
+	cartHandler := handler.NewCartHandler(cartService)
+	checkoutHandler := handler.NewCheckoutHandler(checkoutService)
 	orderHandler := handler.NewOrderHandler(orderService)
 
-	app.Static(
-		"/uploads",
-		"./uploads",
+	app.Static("/uploads", "./uploads")
+
+	routes.SetupRoutes(
+		app,
+		userHandler,
+		categoryHandler,
+		productHandler,
+		addressHandler,
+		cartHandler,
+		checkoutHandler,
+		orderHandler,
 	)
 
-	routes.SetupRoutes(app, userHandler, categoryHandler, productHandler, addressHandler, cartHandler, checkoutHandler, orderHandler)
+	port := config.Get("APP_PORT")
+	if port == "" {
+		port = "3000"
+	}
 
-	log.Fatal(
-		app.Listen(":" + config.Get("APP_PORT")),
-	)
+	log.Printf("Server running on port %s", port)
+
+	log.Fatal(app.Listen(":" + port))
 }

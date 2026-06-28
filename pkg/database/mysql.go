@@ -18,5 +18,19 @@ func Connect() (*gorm.DB, error) {
 		config.Get("DB_NAME"),
 	)
 
-	return gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	if err != nil {
+		return nil, err
+	}
+
+	sqlDB, err := db.DB()
+	if err != nil {
+		return nil, err
+	}
+
+	if err := sqlDB.Ping(); err != nil {
+		return nil, err
+	}
+
+	return db, nil
 }

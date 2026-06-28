@@ -49,4 +49,4 @@ jobs:
         run: go test ./... -v
 
       - name: Build Project
-        run: go build -v ./cmd
+        run: go build -v ./cmd/main.go

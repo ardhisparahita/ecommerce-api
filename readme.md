@@ -1,318 +1,250 @@
-Isi README lengkap
+# E-commerce API
 
-# Ecommerce API
+[![Go CI](https://github.com/ardhisparahita/ecommerce-api/actions/workflows/ci.yml/badge.svg)](https://github.com/ardhisparahita/ecommerce-api/actions/workflows/ci.yml)
 
-[![Go CI](https://github.com/ardhisparahitaa/ecommerce-api/actions/workflows/ci.yml/badge.svg)](https://github.com/ardhisparahitaa/ecommerce-api/actions/workflows/ci.yml)
-
-![Go](<[https://img.shields.io/badge/Go-1.25-00ADD8?logo=go](https://img.shields.io/badge/Go-1.25-00ADD8?logo=go)>)
-
-![Fiber](<[https://img.shields.io/badge/Fiber-v2-00AB6C](https://img.shields.io/badge/Fiber-v2-00AB6C)>)
-
-![MySQL](<[https://img.shields.io/badge/MySQL-8-4479A1?logo=mysql](https://img.shields.io/badge/MySQL-8-4479A1?logo=mysql)>)
-
-![Docker](<[https://img.shields.io/badge/Docker-Enabled-2496ED?logo=docker](https://img.shields.io/badge/Docker-Enabled-2496ED?logo=docker)>)
+![Go](https://img.shields.io/badge/Go-1.25-00ADD8?style=for-the-badge&logo=go&logoColor=white)
+![Fiber](https://img.shields.io/badge/Fiber-v2-00AB6C?style=for-the-badge)
+![MySQL](https://img.shields.io/badge/MySQL-8-4479A1?style=for-the-badge&logo=mysql&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-Enabled-2496ED?style=for-the-badge&logo=docker&logoColor=white)
 
 RESTful API for an e-commerce application built with Golang, Fiber, GORM, and MySQL following the Clean Architecture approach.
 
-### Features
+> This README is a professional template tailored for your project. Replace repository links, screenshots, and versions where necessary.
 
-Authentication
+## Features
+
+### Authentication
 
 - User Registration
-
 - User Login
-
 - JWT Authentication
-
 - User Profile
-
 - Update Profile
-
 - Change Password
-
 - Role-Based Authorization (Admin & Customer)
 
-Product Management
+### Product Management
 
 - Category Management
-
 - Product Management
-
 - Product Image Upload
 
-Shopping
+### Shopping
 
 - Address Management
-
 - Shopping Cart
-
 - Checkout
-
 - Order Management
-
 - Payment Status Management
 
-Developer Tools
+### Developer Tools
 
-- Swagger Documentation
-
-- Database Migration
-
-- Docker & Docker Compose
-
+- Swagger API Documentation
+- Database Migration (golang-migrate)
+- Docker Compose (MySQL)
 - GitHub Actions (CI)
 
-### Tech Stack
+## Tech Stack
 
 - Golang
-
 - Fiber
-
 - GORM
-
 - MySQL
-
 - JWT
-
 - Swagger
-
-- Docker
-
 - Docker Compose
-
 - golang-migrate
-
 - GitHub Actions
 
-### Architecture Overview
+## Architecture Overview
 
+```text
 Client
-
+   │
+   ▼
 Fiber Router
-
+   │
 Middleware
-
-Handler
-
-Service
-
-Repository
-
+   │
+Handlers
+   │
+Services
+   │
+Repositories
+   │
 MySQL
+```
 
-### Project Structure
+## Project Structure
 
-. ├── .github │ └── workflows ├── cmd ├── docs │ └── images │ ├── swagger.png │ └── erd.png ├── internal │ ├── domain │ ├── dto │ ├── handler │ ├── middleware │ ├── repository │ ├── routes │ └── service ├── migrations ├── postman │ ├── Ecommerce API.postman_collection.json │ └── Ecommerce Local.postman_environment.json ├── pkg │ ├── config │ ├── database │ └── utils ├── uploads ├── Dockerfile ├── docker-compose.yml ├── go.mod ├── go.sum └── README.md
+```text
+.
+├── .github/
+├── cmd/
+├── docs/
+├── internal/
+├── migrations/
+├── postman/
+├── pkg/
+├── uploads/
+├── Dockerfile
+├── docker-compose.yml
+└── README.md
+```
 
-### Prerequisites
+## Prerequisites
 
 - Go 1.25+
-
-- MySQL 8
-
-- Docker & Docker Compose (optional)
-
+- MySQL 8 (or Docker)
+- Docker & Docker Compose
 - golang-migrate
 
-### Installation
+## Installation
 
-Clone repository
+```bash
+git clone https://github.com/ardhisparahita/ecommerce-api.git
+cd ecommerce-api
+go mod tidy
+```
 
-Install dependencies
+## Environment Variables
 
-### Environment Variables
+Create a `.env` file with:
 
-Create a `.env` file in the project root and configure the following variables.
+- APP_PORT
+- DB_HOST
+- DB_PORT
+- DB_NAME
+- DB_USER
+- DB_PASSWORD
+- DB_ROOT_PASS
+- JWT_SECRET
 
-| Variable     | Description         |
-| ------------ | ------------------- |
-| APP_PORT     | Application Port    |
-| DB_HOST      | Database Host       |
-| DB_PORT      | Database Port       |
-| DB_NAME      | Database Name       |
-| DB_USER      | Database Username   |
-| DB_PASSWORD  | Database Password   |
-| DB_ROOT_PASS | MySQL Root Password |
-| JWT_SECRET   | JWT Secret          |
+## Database Migration
 
-Note: The `.env` file is intentionally excluded from this repository because it contains sensitive configuration.
+Start MySQL:
 
-### Database Migration
+```bash
+docker compose up -d mysql
+```
 
-Run migration
+Run migrations:
 
-Rollback migration
+```bash
+migrate -path migrations -database "<DATABASE_URL>" up
+```
 
-### Running the Application
+Rollback:
 
-The application will be available at `http://localhost:3000`
+```bash
+migrate -path migrations -database "<DATABASE_URL>" down 1
+```
 
-### Running with Docker
+## Running the Application
 
-Build and start the application
+1. Start MySQL
 
-Run in detached mode
+```bash
+docker compose up -d mysql
+```
 
-Stop containers
+2. Run migrations
 
-Remove containers and volumes
+```bash
+migrate -path migrations -database "<DATABASE_URL>" up
+```
 
-### API Documentation
+3. Start backend
 
-Swagger UI is available at `http://localhost:3000/swagger/index.html`
+```bash
+go run ./cmd
+```
 
+Application:
+
+- http://localhost:3000
+
+Swagger:
+
+- http://localhost:3000/swagger/index.html
+
+## Running with Docker
+
+This project uses Docker Compose **only for the MySQL database**.
+
+```bash
+docker compose up -d mysql
+docker compose ps
+docker compose logs -f mysql
+docker compose stop mysql
+docker compose down
+docker compose down -v
+```
+
+> Backend runs locally:
+>
+> ```bash
+> go run ./cmd
+> ```
+
+## API Documentation
+
+Swagger UI:
+
+`http://localhost:3000/swagger/index.html`
+
+```md
 ![Swagger UI](docs/images/swagger.png)
+```
 
-### Database Schema (ERD)
+## Database Schema
 
+```md
 ![Database ERD](docs/images/erd.svg)
+```
 
-### Postman Collection
+## Postman Collection
 
-Import the collection from:
+- `postman/Ecommerce API.postman_collection.json`
+- `postman/Ecommerce Local.postman_environment.json`
 
-Collection
+## API Endpoints
 
-JSON
+- Authentication
+- Users
+- Categories
+- Products
+- Addresses
+- Carts
+- Checkout
+- Orders
 
-Ecommerce API.postman_collection.json
+(Use the endpoint tables you already prepared.)
 
-All API endpoints for testing
+## Authentication
 
-Ecommerce Local.postman_environment.json
+Protected endpoints require:
 
-Local environment variables
+```http
+Authorization: Bearer <access_token>
+```
 
-### API Endpoints
+## Continuous Integration
 
-### Authentication
+GitHub Actions automatically runs:
 
-Public
-
-| Method | Endpoint              | Description         |
-| ------ | --------------------- | ------------------- |
-| POST   | /api/v1/auth/register | Register a new user |
-| POST   | /api/v1/auth/login    | Login               |
-
-### User
-
-JWT
-
-| Method | Endpoint                      | Description         |
-| ------ | ----------------------------- | ------------------- |
-| GET    | /api/v1/users/profile         | Get user profile    |
-| PUT    | /api/v1/users/profile         | Update user profile |
-| PATCH  | /api/v1/users/change-password | Change password     |
-
-### Categories
-
-Admin Write
-
-| Method | Endpoint                | Description             |
-| ------ | ----------------------- | ----------------------- |
-| GET    | /api/v1/categories      | Get all categories      |
-| GET    | /api/v1/categories/{id} | Get category by ID      |
-| POST   | /api/v1/categories      | Create category (Admin) |
-| PUT    | /api/v1/categories/{id} | Update category (Admin) |
-
-### Products
-
-Admin Manage
-
-| Method | Endpoint                    | Description                  |
-| ------ | --------------------------- | ---------------------------- |
-| GET    | /api/v1/products            | Get all products             |
-| GET    | /api/v1/products/{id}       | Get product details          |
-| POST   | /api/v1/products            | Create product (Admin)       |
-| PUT    | /api/v1/products/{id}       | Update product (Admin)       |
-| DELETE | /api/v1/products/{id}       | Delete product (Admin)       |
-| POST   | /api/v1/products/{id}/image | Upload product image (Admin) |
-
-### Addresses
-
-JWT
-
-| Method | Endpoint               | Description       |
-| ------ | ---------------------- | ----------------- |
-| GET    | /api/v1/addresses      | Get all addresses |
-| GET    | /api/v1/addresses/{id} | Get address by ID |
-| POST   | /api/v1/addresses      | Create address    |
-| PUT    | /api/v1/addresses/{id} | Update address    |
-| DELETE | /api/v1/addresses/{id} | Delete address    |
-
-### Shopping Cart
-
-JWT
-
-| Method | Endpoint           | Description         |
-| ------ | ------------------ | ------------------- |
-| GET    | /api/v1/carts      | Get shopping cart   |
-| POST   | /api/v1/carts      | Add product to cart |
-| PUT    | /api/v1/carts/{id} | Update cart item    |
-| DELETE | /api/v1/carts/{id} | Remove cart item    |
-
-### Checkout
-
-JWT
-
-| Method | Endpoint          | Description   |
-| ------ | ----------------- | ------------- |
-| POST   | /api/v1/checkouts | Checkout cart |
-
-### Orders
-
-Admin Status
-
-| Method | Endpoint                     | Description                   |
-| ------ | ---------------------------- | ----------------------------- |
-| GET    | /api/v1/orders               | Get all orders                |
-| GET    | /api/v1/orders/{id}          | Get order details             |
-| PATCH  | /api/v1/orders/{id}/pay      | Mark order as paid (Admin)    |
-| PATCH  | /api/v1/orders/{id}/fail     | Mark payment as failed        |
-| PATCH  | /api/v1/orders/{id}/cancel   | Cancel order                  |
-| PATCH  | /api/v1/orders/{id}/ship     | Mark order as shipped (Admin) |
-| PATCH  | /api/v1/orders/{id}/complete | Mark order as completed       |
-
-### Authentication
-
-Protected endpoints require a JWT Bearer Token.
-
-### Admin Only
-
-- Create Category
-
-- Update Category
-
-- Create Product
-
-- Update Product
-
-- Delete Product
-
-- Upload Product Image
-
-- Mark Order as Paid
-
-- Mark Order as Shipped
-
-### Continuous Integration
-
-GitHub Actions automatically performs the following checks on every push and pull request:
-
-- Build Project
-
+- Build
 - Go Vet
-
 - Unit Test
 
-### License
+## License
 
 This project was developed for learning purposes and as a backend development portfolio.
 
-### Author
+## Author
 
-Ardhis Parahita
+**Ardhis Parahita**
 
 Backend Developer
 
-GitHub: https://github.com/ardhisparahitaa
+- GitHub: https://github.com/ardhisparahita

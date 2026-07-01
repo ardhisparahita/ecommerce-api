@@ -55,7 +55,7 @@ func (h *ProductHandler) Create(c *fiber.Ctx) error {
 
 	return utils.ResponseSuccess(
 		c,
-		fiber.StatusOK,
+		fiber.StatusCreated,
 		"product created",
 		data,
 	)

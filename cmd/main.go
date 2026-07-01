@@ -9,6 +9,7 @@ import (
 	"github.com/ardhisparahita/ecommerce-api/internal/handler"
 	"github.com/ardhisparahita/ecommerce-api/internal/repository"
 	"github.com/ardhisparahita/ecommerce-api/internal/routes"
+	"github.com/ardhisparahita/ecommerce-api/internal/seeders"
 	"github.com/ardhisparahita/ecommerce-api/internal/service"
 	"github.com/ardhisparahita/ecommerce-api/pkg/config"
 	"github.com/ardhisparahita/ecommerce-api/pkg/database"
@@ -75,6 +76,10 @@ func main() {
 
 				if errPing = sqlDB.Ping(); errPing == nil {
 					log.Println("Database connected successfully")
+
+					if err := seeders.SeedAdmin(db); err != nil {
+						log.Fatalf("failed to seed admin: %v", err)
+					}
 					break
 				}
 

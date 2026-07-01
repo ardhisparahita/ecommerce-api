@@ -54,7 +54,12 @@ func (s *AuthServiceImpl) Register(ctx context.Context, req request.RegisterRequ
 		return nil, err
 	}
 
-	return &response.UserResponse{ID: user.ID, Name: user.Name, Email: user.Email, Role: user.Role}, nil
+	return &response.UserResponse{
+		ID:    user.ID,
+		Name:  user.Name,
+		Email: user.Email,
+		Role:  user.Role,
+	}, nil
 }
 
 func (s *AuthServiceImpl) Login(ctx context.Context, req request.LoginRequest) (*response.AuthResponse, error) {
@@ -96,6 +101,7 @@ func (s *AuthServiceImpl) GetProfile(ctx context.Context, userID uint64) (*respo
 		ID:    user.ID,
 		Name:  user.Name,
 		Email: user.Email,
+		Role:  user.Role,
 	}, nil
 }
 
@@ -117,6 +123,7 @@ func (s *AuthServiceImpl) UpdateProfile(ctx context.Context, userID uint64, req 
 		ID:    user.ID,
 		Name:  req.Name,
 		Email: user.Email,
+		Role:  user.Role,
 	}, nil
 }
 

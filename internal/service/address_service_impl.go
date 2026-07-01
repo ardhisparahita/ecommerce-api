@@ -2,12 +2,15 @@ package service
 
 import (
 	"context"
+	"errors"
 
 	"github.com/ardhisparahita/ecommerce-api/internal/domain"
 	"github.com/ardhisparahita/ecommerce-api/internal/dto/request"
 	"github.com/ardhisparahita/ecommerce-api/internal/dto/response"
 	"github.com/ardhisparahita/ecommerce-api/internal/mapper"
 	"github.com/ardhisparahita/ecommerce-api/internal/repository"
+	"github.com/ardhisparahita/ecommerce-api/pkg/utils"
+	"gorm.io/gorm"
 )
 
 type AddressServiceImpl struct {
@@ -50,6 +53,9 @@ func (s *AddressServiceImpl) FindAllByUserID(ctx context.Context, userID uint64)
 func (s *AddressServiceImpl) FindByID(ctx context.Context, id uint64, userID uint64) (*response.AddressResponse, error) {
 	address, err := s.Repo.FindByIDAndUserID(ctx, id, userID)
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, utils.NotFound("address not found")
+		}
 		return nil, err
 	}
 
@@ -59,6 +65,9 @@ func (s *AddressServiceImpl) FindByID(ctx context.Context, id uint64, userID uin
 func (s *AddressServiceImpl) Update(ctx context.Context, id uint64, userID uint64, req request.UpdateAddressRequest) (*response.AddressResponse, error) {
 	address, err := s.Repo.FindByIDAndUserID(ctx, id, userID)
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, utils.NotFound("address not found")
+		}
 		return nil, err
 	}
 
@@ -79,6 +88,9 @@ func (s *AddressServiceImpl) Update(ctx context.Context, id uint64, userID uint6
 func (s *AddressServiceImpl) Delete(ctx context.Context, id uint64, userID uint64) error {
 	_, err := s.Repo.FindByIDAndUserID(ctx, id, userID)
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return utils.NotFound("address not found")
+		}
 		return err
 	}
 

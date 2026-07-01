@@ -1,9 +1,9 @@
 package request
 
 type CreateCategoryRequest struct {
-	Name string `json:"name" validate:"required,min=3,max=100"`
+	Name string `json:"name" validate:"required,min=2,max=100"`
 }
 
 type UpdateCategoryRequest struct {
-	Name string `json:"name" validate:"required,min=3,max=100"`
+	Name string `json:"name" validate:"required,min=2,max=100"`
 }

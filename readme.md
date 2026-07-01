@@ -252,17 +252,13 @@ docker compose down -v
 
 Swagger UI:
 
-`http://localhost:3000/swagger/index.html`
+http://localhost:3000/swagger/index.html
 
-```md
 ![Swagger UI](docs/images/swagger.png)
-```
 
 ## Database Schema
 
-```md
 ![Database ERD](docs/images/erd.svg)
-```
 
 ## Postman Collection
 

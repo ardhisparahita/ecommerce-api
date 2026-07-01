@@ -2,7 +2,7 @@ Isi README lengkap
 
 # Ecommerce API
 
-![Go CI ](<[https://github.com/ardhisparahitaa/ecommerce-api/actions/workflows/ci.yml](https://github.com/ardhisparahitaa/ecommerce-api/actions/workflows/ci.yml)>)
+[![Go CI](https://github.com/ardhisparahitaa/ecommerce-api/actions/workflows/ci.yml/badge.svg)](https://github.com/ardhisparahitaa/ecommerce-api/actions/workflows/ci.yml)
 
 ![Go](<[https://img.shields.io/badge/Go-1.25-00ADD8?logo=go](https://img.shields.io/badge/Go-1.25-00ADD8?logo=go)>)
 

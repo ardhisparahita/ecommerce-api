@@ -54,7 +54,7 @@ func (h *CartHandler) AddToCart(c *fiber.Ctx) error {
 
 	return utils.ResponseSuccess(
 		c,
-		fiber.StatusOK,
+		fiber.StatusCreated,
 		"product added to cart",
 		data,
 	)

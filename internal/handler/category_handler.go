@@ -53,7 +53,7 @@ func (h *CategoryHandler) Create(c *fiber.Ctx) error {
 
 	return utils.ResponseSuccess(
 		c,
-		fiber.StatusOK,
+		fiber.StatusCreated,
 		"category created",
 		data,
 	)

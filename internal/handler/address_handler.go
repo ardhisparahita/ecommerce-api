@@ -53,7 +53,7 @@ func (h *AddressHandler) Create(c *fiber.Ctx) error {
 
 	return utils.ResponseSuccess(
 		c,
-		fiber.StatusOK,
+		fiber.StatusCreated,
 		"address created",
 		data,
 	)

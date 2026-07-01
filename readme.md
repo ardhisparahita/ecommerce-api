@@ -9,8 +9,6 @@
 
 RESTful API for an e-commerce application built with Golang, Fiber, GORM, and MySQL following the Clean Architecture approach.
 
-> This README is a professional template tailored for your project. Replace repository links, screenshots, and versions where necessary.
-
 ## Features
 
 ### Authentication
@@ -142,50 +140,113 @@ migrate -path migrations -database "<DATABASE_URL>" down 1
 
 ## Running the Application
 
-1. Start MySQL
+### Option 1 — Local Development
+
+#### 1. Start MySQL
 
 ```bash
 docker compose up -d mysql
 ```
 
-2. Run migrations
+#### 2. Run Database Migrations
 
 ```bash
 migrate -path migrations -database "<DATABASE_URL>" up
 ```
 
-3. Start backend
+#### 3. Start the Backend
 
 ```bash
 go run ./cmd
 ```
 
-Application:
+The API server will be available at:
 
-- http://localhost:3000
+```
+http://localhost:3000
+```
 
-Swagger:
+Swagger UI:
 
-- http://localhost:3000/swagger/index.html
+```
+http://localhost:3000/swagger/index.html
+```
 
 ## Running with Docker
 
-This project uses Docker Compose **only for the MySQL database**.
+You can also run the backend together with the MySQL database using Docker Compose.
+
+### Start MySQL and Backend
 
 ```bash
-docker compose up -d mysql
+docker compose up --build
+```
+
+Or run in detached mode.
+
+```bash
+docker compose up -d --build
+```
+
+### Start Only the Backend
+
+If the MySQL container is already running, you can start only the backend.
+
+```bash
+docker compose up backend
+```
+
+Or run in detached mode.
+
+```bash
+docker compose up -d backend
+```
+
+### View Running Containers
+
+```bash
 docker compose ps
+```
+
+### View Backend Logs
+
+```bash
+docker compose logs -f backend
+```
+
+### View Database Logs
+
+```bash
 docker compose logs -f mysql
+```
+
+### Stop Backend
+
+```bash
+docker compose stop backend
+```
+
+### Stop MySQL
+
+```bash
 docker compose stop mysql
+```
+
+### Remove Containers
+
+```bash
 docker compose down
+```
+
+### Remove Containers and Database Volume
+
+```bash
 docker compose down -v
 ```
 
-> Backend runs locally:
+> **Note**
 >
-> ```bash
-> go run ./cmd
-> ```
+> Before starting the backend container for the first time, make sure the database migrations have been applied using **golang-migrate**.
 
 ## API Documentation
 
@@ -218,8 +279,6 @@ Swagger UI:
 - Carts
 - Checkout
 - Orders
-
-(Use the endpoint tables you already prepared.)
 
 ## Authentication
 

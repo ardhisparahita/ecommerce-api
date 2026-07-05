@@ -57,7 +57,7 @@ func (s *CheckoutServiceImpl) Checkout(ctx context.Context, userID uint64, req r
 	}
 
 	if len(carts) == 0 {
-		return nil, errors.New("cart is empty")
+		return nil, utils.BadRequest("cart is empty")
 	}
 
 	var grandTotal float64

@@ -27,7 +27,7 @@ func NewAuthService(repo repository.UserRepository) AuthService {
 func (s *AuthServiceImpl) Register(ctx context.Context, req request.RegisterRequest) (*response.UserResponse, error) {
 	_, err := s.Repo.FindByEmail(ctx, req.Email)
 	if err == nil {
-		return nil, utils.BadRequest("email already registered")
+		return nil, utils.Conflict("email already registered")
 	}
 
 	if !errors.Is(err, gorm.ErrRecordNotFound) {

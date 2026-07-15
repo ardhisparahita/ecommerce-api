@@ -137,16 +137,16 @@ func (s *OrderServiceImpl) MarkAsFailed(ctx context.Context, id uint64) error {
 	case domain.OrderPending:
 
 	case domain.OrderPaid:
-		return utils.BadRequest("order already paid")
+		return utils.BadRequest("paid order cannot be marked as failed")
+
+	case domain.OrderShipped:
+		return utils.BadRequest("shipped order cannot be marked as failed")
+
+	case domain.OrderCompleted:
+		return utils.BadRequest("completed order cannot be marked as failed")
 
 	case domain.OrderCancelled:
 		return utils.BadRequest("order already cancelled")
-
-	case domain.OrderShipped:
-		return utils.BadRequest("order already shipped")
-
-	case domain.OrderCompleted:
-		return utils.BadRequest("order already completed")
 
 	default:
 		return utils.BadRequest("invalid order status")

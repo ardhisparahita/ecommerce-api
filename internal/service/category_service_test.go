@@ -11,38 +11,6 @@ import (
 	"gorm.io/gorm"
 )
 
-type MockCategoryRepository struct {
-	mock.Mock
-}
-
-func (m *MockCategoryRepository) Create(ctx context.Context, category *domain.Category) error {
-	args := m.Called(ctx, category)
-
-	return args.Error(0)
-}
-
-func (m *MockCategoryRepository) FindAll(ctx context.Context) ([]domain.Category, error) {
-	args := m.Called(ctx)
-
-	return args.Get(0).([]domain.Category), args.Error(1)
-}
-
-func (m *MockCategoryRepository) FindByID(ctx context.Context, id uint64) (*domain.Category, error) {
-	args := m.Called(ctx, id)
-
-	if args.Get(0) == nil {
-		return nil, args.Error(1)
-	}
-
-	return args.Get(0).(*domain.Category), args.Error(1)
-}
-
-func (m *MockCategoryRepository) Update(ctx context.Context, category *domain.Category) error {
-	args := m.Called(ctx, category)
-
-	return args.Error(0)
-}
-
 func TestCreateCategorySuccess(t *testing.T) {
 	repo := new(MockCategoryRepository)
 

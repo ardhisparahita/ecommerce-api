@@ -145,26 +145,36 @@ func (h *OrderHandler) MarkAsShipped(c *fiber.Ctx) error {
 
 }
 
-// MarkAsShipped godoc
+// MarkAsCompleted godoc
 //
-// @Summary Mark order as shipped
-// @Description Change order status to SHIPPED
+// @Summary Complete order
+// @Description Change order status to COMPLETED
 // @Tags Orders
 // @Security BearerAuth
 // @Produce json
 // @Param id path int true "Order ID"
 // @Success 200 {object} response.MessageSwaggerResponse
 // @Failure 400 {object} response.ErrorSwaggerResponse
+// @Failure 401 {object} response.ErrorSwaggerResponse
+// @Failure 403 {object} response.ErrorSwaggerResponse
 // @Failure 404 {object} response.ErrorSwaggerResponse
 // @Failure 500 {object} response.ErrorSwaggerResponse
-// @Router /orders/{id}/ship [patch]
+// @Router /orders/{id}/complete [patch]
 func (h *OrderHandler) MarkAsCompleted(c *fiber.Ctx) error {
 	id, err := strconv.ParseUint(c.Params("id"), 10, 64)
 	if err != nil {
-		return fiber.NewError(fiber.StatusBadRequest, "invalid order Id")
+		return fiber.NewError(fiber.StatusBadRequest, "invalid order id")
 	}
 
-	err = h.Service.MarkAsCompleted(c.UserContext(), id)
+	userID := c.Locals("user_id").(uint64)
+	role := c.Locals("role").(string)
+
+	err = h.Service.MarkAsCompleted(
+		c.UserContext(),
+		id,
+		userID,
+		role,
+	)
 	if err != nil {
 		return err
 	}

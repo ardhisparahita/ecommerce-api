@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 
+	"github.com/ardhisparahita/ecommerce-api/internal/domain"
 	"github.com/ardhisparahita/ecommerce-api/internal/dto/response"
 	"github.com/ardhisparahita/ecommerce-api/internal/mapper"
 	"github.com/ardhisparahita/ecommerce-api/internal/repository"
@@ -59,31 +60,59 @@ func (s *OrderServiceImpl) MarkAsPaid(ctx context.Context, id uint64) error {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return utils.NotFound("order not found")
 		}
+
 		return err
 	}
 
-	if order.Status != "PENDING" {
-		return utils.BadRequest("order already processed")
+	switch order.Status {
+
+	case domain.OrderPending:
+
+	case domain.OrderPaid:
+		return utils.BadRequest("order already paid")
+
+	case domain.OrderShipped:
+		return utils.BadRequest("order already shipped")
+
+	case domain.OrderCompleted:
+		return utils.BadRequest("order already completed")
+
+	case domain.OrderCancelled:
+		return utils.BadRequest("cancelled order cannot be paid")
+
+	default:
+		return utils.BadRequest("invalid order status")
 	}
 
 	payment, err := s.PaymentRepo.FIndByOrderID(ctx, order.ID)
 	if err != nil {
+
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return utils.NotFound("payment not found")
 		}
+
 		return err
 	}
 
 	return s.DB.Transaction(func(tx *gorm.DB) error {
-		payment.Status = "PAID"
 
-		if err := s.PaymentRepo.UpdateTx(ctx, tx, payment); err != nil {
+		payment.Status = domain.PaymentPaid
+
+		if err := s.PaymentRepo.UpdateTx(
+			ctx,
+			tx,
+			payment,
+		); err != nil {
 			return err
 		}
 
-		order.Status = "PAID"
+		order.Status = domain.OrderPaid
 
-		if err := s.OrderRepo.UpdateTx(ctx, tx, order); err != nil {
+		if err := s.OrderRepo.UpdateTx(
+			ctx,
+			tx,
+			order,
+		); err != nil {
 			return err
 		}
 
@@ -92,25 +121,51 @@ func (s *OrderServiceImpl) MarkAsPaid(ctx context.Context, id uint64) error {
 }
 
 func (s *OrderServiceImpl) MarkAsFailed(ctx context.Context, id uint64) error {
+
 	order, err := s.OrderRepo.FindByIDWithItems(ctx, id)
 	if err != nil {
+
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return utils.NotFound("order not found")
 		}
+
 		return err
 	}
 
-	if order.Status != "PENDING" {
-		return utils.BadRequest("order already processed")
+	switch order.Status {
+
+	case domain.OrderPending:
+
+	case domain.OrderPaid:
+		return utils.BadRequest("order already paid")
+
+	case domain.OrderCancelled:
+		return utils.BadRequest("order already cancelled")
+
+	case domain.OrderShipped:
+		return utils.BadRequest("order already shipped")
+
+	case domain.OrderCompleted:
+		return utils.BadRequest("order already completed")
+
+	default:
+		return utils.BadRequest("invalid order status")
 	}
 
 	payment, err := s.PaymentRepo.FIndByOrderID(ctx, order.ID)
 	if err != nil {
+
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return utils.NotFound("payment not found")
+		}
+
 		return err
 	}
 
 	return s.DB.Transaction(func(tx *gorm.DB) error {
+
 		for _, item := range order.OrderItems {
+
 			product, err := s.ProductRepo.FindByID(ctx, item.ProductID)
 			if err != nil {
 				return err
@@ -118,19 +173,32 @@ func (s *OrderServiceImpl) MarkAsFailed(ctx context.Context, id uint64) error {
 
 			product.Stock += item.Quantity
 
-			if err := s.ProductRepo.UpdateTx(ctx, tx, product); err != nil {
+			if err := s.ProductRepo.UpdateTx(
+				ctx,
+				tx,
+				product,
+			); err != nil {
 				return err
 			}
 		}
 
-		payment.Status = "FAILED"
+		payment.Status = domain.PaymentFailed
 
-		if err := s.PaymentRepo.UpdateTx(ctx, tx, payment); err != nil {
+		if err := s.PaymentRepo.UpdateTx(
+			ctx,
+			tx,
+			payment,
+		); err != nil {
 			return err
 		}
 
-		order.Status = "CANCELLED"
-		if err := s.OrderRepo.UpdateTx(ctx, tx, order); err != nil {
+		order.Status = domain.OrderCancelled
+
+		if err := s.OrderRepo.UpdateTx(
+			ctx,
+			tx,
+			order,
+		); err != nil {
 			return err
 		}
 
@@ -139,48 +207,90 @@ func (s *OrderServiceImpl) MarkAsFailed(ctx context.Context, id uint64) error {
 }
 
 func (s *OrderServiceImpl) Cancel(ctx context.Context, id uint64, userID uint64) error {
-	order, err := s.OrderRepo.FindByIDAndUserIDWithItems(ctx, id, userID)
+	order, err := s.OrderRepo.FindByIDAndUserIDWithItems(
+		ctx,
+		id,
+		userID,
+	)
 	if err != nil {
+
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return utils.NotFound("order not found")
 		}
+
 		return err
 	}
 
-	if order.Status != "PENDING" {
-		return utils.BadRequest(
-			"only pending orders can be cancelled",
-		)
+	switch order.Status {
+
+	case domain.OrderPending:
+
+	case domain.OrderCancelled:
+		return utils.BadRequest("order already cancelled")
+
+	case domain.OrderPaid:
+		return utils.BadRequest("paid order cannot be cancelled")
+
+	case domain.OrderShipped:
+		return utils.BadRequest("shipped order cannot be cancelled")
+
+	case domain.OrderCompleted:
+		return utils.BadRequest("completed order cannot be cancelled")
+
+	default:
+		return utils.BadRequest("invalid order status")
 	}
 
 	payment, err := s.PaymentRepo.FIndByOrderID(ctx, order.ID)
 	if err != nil {
+
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return utils.NotFound("payment not found")
+		}
+
 		return err
 	}
 
 	return s.DB.Transaction(func(tx *gorm.DB) error {
+
 		for _, item := range order.OrderItems {
-			product, err := s.ProductRepo.FindByID(ctx, item.ProductID)
+
+			product, err := s.ProductRepo.FindByID(
+				ctx,
+				item.ProductID,
+			)
 			if err != nil {
 				return err
 			}
 
 			product.Stock += item.Quantity
 
-			if err := s.ProductRepo.UpdateTx(ctx, tx, product); err != nil {
+			if err := s.ProductRepo.UpdateTx(
+				ctx,
+				tx,
+				product,
+			); err != nil {
 				return err
 			}
 		}
 
-		order.Status = "CANCELLED"
+		payment.Status = domain.PaymentFailed
 
-		if err := s.OrderRepo.UpdateTx(ctx, tx, order); err != nil {
+		if err := s.PaymentRepo.UpdateTx(
+			ctx,
+			tx,
+			payment,
+		); err != nil {
 			return err
 		}
 
-		payment.Status = "FAILED"
+		order.Status = domain.OrderCancelled
 
-		if err := s.PaymentRepo.UpdateTx(ctx, tx, payment); err != nil {
+		if err := s.OrderRepo.UpdateTx(
+			ctx,
+			tx,
+			order,
+		); err != nil {
 			return err
 		}
 
@@ -189,37 +299,98 @@ func (s *OrderServiceImpl) Cancel(ctx context.Context, id uint64, userID uint64)
 }
 
 func (s *OrderServiceImpl) MarkAsShipped(ctx context.Context, id uint64) error {
+
 	order, err := s.OrderRepo.FindByID(ctx, id)
 	if err != nil {
+
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return utils.NotFound("order not found")
 		}
+
 		return err
 	}
 
-	if order.Status != "PAID" {
+	switch order.Status {
+
+	case domain.OrderPaid:
+
+	case domain.OrderPending:
 		return utils.BadRequest("order must be paid before shipping")
+
+	case domain.OrderShipped:
+		return utils.BadRequest("order already shipped")
+
+	case domain.OrderCompleted:
+		return utils.BadRequest("completed order cannot be shipped")
+
+	case domain.OrderCancelled:
+		return utils.BadRequest("cancelled order cannot be shipped")
+
+	default:
+		return utils.BadRequest("invalid order status")
 	}
 
-	order.Status = "SHIPPED"
+	order.Status = domain.OrderShipped
 
-	return s.OrderRepo.Update(ctx, order)
+	if err := s.OrderRepo.Update(ctx, order); err != nil {
+		return err
+	}
+
+	return nil
 }
 
-func (s *OrderServiceImpl) MarkAsCompleted(ctx context.Context, id uint64) error {
+func (s *OrderServiceImpl) MarkAsCompleted(ctx context.Context, id uint64, userID uint64, role string) error {
 	order, err := s.OrderRepo.FindByID(ctx, id)
 	if err != nil {
+
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return utils.NotFound("order not found")
 		}
+
 		return err
 	}
 
-	if order.Status != "SHIPPED" {
-		return utils.BadRequest("order must be shipped first")
+	if role != domain.RoleAdmin && order.UserID != userID {
+		return utils.Forbidden(
+			"you are not allowed to complete this order",
+		)
 	}
 
-	order.Status = "COMPLETED"
+	switch order.Status {
 
-	return s.OrderRepo.Update(ctx, order)
+	case domain.OrderShipped:
+
+	case domain.OrderPending:
+		return utils.BadRequest(
+			"order must be shipped first",
+		)
+
+	case domain.OrderPaid:
+		return utils.BadRequest(
+			"order must be shipped first",
+		)
+
+	case domain.OrderCompleted:
+		return utils.BadRequest(
+			"order already completed",
+		)
+
+	case domain.OrderCancelled:
+		return utils.BadRequest(
+			"cancelled order cannot be completed",
+		)
+
+	default:
+		return utils.BadRequest(
+			"invalid order status",
+		)
+	}
+
+	order.Status = domain.OrderCompleted
+
+	if err := s.OrderRepo.Update(ctx, order); err != nil {
+		return err
+	}
+
+	return nil
 }

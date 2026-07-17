@@ -253,3 +253,197 @@ func (m *MockCategoryRepository) Update(ctx context.Context, category *domain.Ca
 
 	return args.Error(0)
 }
+
+type MockAddressRepository struct {
+	mock.Mock
+}
+
+func (m *MockAddressRepository) Create(
+	ctx context.Context,
+	address *domain.Address,
+) error {
+
+	args := m.Called(
+		ctx,
+		address,
+	)
+
+	return args.Error(0)
+}
+
+func (m *MockAddressRepository) FindAllByUserID(
+	ctx context.Context,
+	userID uint64,
+) ([]domain.Address, error) {
+
+	args := m.Called(
+		ctx,
+		userID,
+	)
+
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+
+	return args.Get(0).([]domain.Address), args.Error(1)
+}
+
+func (m *MockAddressRepository) FindByIDAndUserID(
+	ctx context.Context,
+	id uint64,
+	userID uint64,
+) (*domain.Address, error) {
+
+	args := m.Called(
+		ctx,
+		id,
+		userID,
+	)
+
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+
+	return args.Get(0).(*domain.Address), args.Error(1)
+}
+
+func (m *MockAddressRepository) Update(
+	ctx context.Context,
+	address *domain.Address,
+) error {
+
+	args := m.Called(
+		ctx,
+		address,
+	)
+
+	return args.Error(0)
+}
+
+func (m *MockAddressRepository) Delete(
+	ctx context.Context,
+	id uint64,
+) error {
+
+	args := m.Called(
+		ctx,
+		id,
+	)
+
+	return args.Error(0)
+}
+
+type MockCartRepository struct {
+	mock.Mock
+}
+
+func (m *MockCartRepository) Create(
+	ctx context.Context,
+	cart *domain.Cart,
+) error {
+
+	args := m.Called(ctx, cart)
+
+	return args.Error(0)
+}
+
+func (m *MockCartRepository) FindAllByUserID(
+	ctx context.Context,
+	userID uint64,
+) ([]domain.Cart, error) {
+
+	args := m.Called(ctx, userID)
+
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+
+	return args.Get(0).([]domain.Cart), args.Error(1)
+}
+
+func (m *MockCartRepository) FindByIDAndUserID(
+	ctx context.Context,
+	id uint64,
+	userID uint64,
+) (*domain.Cart, error) {
+
+	args := m.Called(ctx, id, userID)
+
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+
+	return args.Get(0).(*domain.Cart), args.Error(1)
+}
+
+func (m *MockCartRepository) FindByUserIDAndProductID(
+	ctx context.Context,
+	userID uint64,
+	productID uint64,
+) (*domain.Cart, error) {
+
+	args := m.Called(ctx, userID, productID)
+
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+
+	return args.Get(0).(*domain.Cart), args.Error(1)
+}
+
+func (m *MockCartRepository) Update(
+	ctx context.Context,
+	cart *domain.Cart,
+) error {
+
+	args := m.Called(ctx, cart)
+
+	return args.Error(0)
+}
+
+func (m *MockCartRepository) Delete(
+	ctx context.Context,
+	id uint64,
+	userID uint64,
+) error {
+
+	args := m.Called(ctx, id, userID)
+
+	return args.Error(0)
+}
+
+func (m *MockCartRepository) DeleteAllByUserID(
+	ctx context.Context,
+	userID uint64,
+) error {
+
+	args := m.Called(ctx, userID)
+
+	return args.Error(0)
+}
+
+func (m *MockCartRepository) DeleteAllByUserIDTx(
+	ctx context.Context,
+	tx *gorm.DB,
+	userID uint64,
+) error {
+
+	args := m.Called(ctx, tx, userID)
+
+	return args.Error(0)
+}
+
+type MockOrderItemRepository struct {
+	mock.Mock
+}
+
+func (m *MockOrderItemRepository) CreateTx(
+	ctx context.Context,
+	tx *gorm.DB,
+	orderItem *domain.OrderItem,
+) error {
+
+	args := m.Called(ctx, tx, orderItem)
+
+	return args.Error(0)
+}

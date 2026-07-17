@@ -57,7 +57,6 @@ func (h *CategoryHandler) Create(c *fiber.Ctx) error {
 		"category created",
 		data,
 	)
-
 }
 
 // FindAll godoc
@@ -158,5 +157,4 @@ func (h *CategoryHandler) FindByID(c *fiber.Ctx) error {
 		"success",
 		data,
 	)
-
 }

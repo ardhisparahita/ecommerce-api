@@ -8,7 +8,6 @@ import (
 	"github.com/ardhisparahita/ecommerce-api/pkg/utils"
 	"github.com/gofiber/fiber/v2"
 )
-
 type OrderHandler struct {
 	Service service.OrderService
 }

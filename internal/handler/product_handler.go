@@ -234,7 +234,7 @@ func (h *ProductHandler) UploadImage(c *fiber.Ctx) error {
 		return err
 	}
 
-	data, err := h.Service.UploadImage(c.UserContext(), id, "/uploads/products"+fileName)
+	data, err := h.Service.UploadImage(c.UserContext(), id, "/uploads/products/"+fileName)
 
 	if err != nil {
 		return err
